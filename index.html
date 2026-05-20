@@ -3,154 +3,270 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weekly Workout Tracker</title>
+    <title>Aesthetic Workout Tracker</title>
     <style>
         :root {
-            --bg-color: #0b0f19;
-            --card-bg: #151f32;
-            --border-color: #24354f;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent: #38bdf8;
-            --success: #4ade80;
+            --bg-main: #09090b;
+            --card-bg: #141417;
+            --card-border: #27272a;
+            --text-title: #ffffff;
+            --text-body: #e4e4e7;
+            --text-muted: #71717a;
+            --accent-glow: rgba(6, 182, 212, 0.15);
+            --accent: #06b6d4; /* Cyber Cyan */
+            --success: #10b981; /* Emerald */
+            --success-glow: rgba(16, 185, 129, 0.15);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-body);
             margin: 0;
-            padding: 16px;
-            padding-bottom: 60px;
+            padding: 20px 16px;
+            display: flex;
+            flex-content: column;
+            align-items: center;
+        }
+
+        .app-wrapper {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
         }
 
         header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 24px;
         }
 
-        h1 { margin: 0; font-size: 1.4rem; letter-spacing: 0.05em; text-transform: uppercase; }
-        .status-p { margin: 4px 0 0; font-size: 0.85rem; color: var(--accent); font-weight: 600; }
-
-        .day-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            border: 1px solid transparent;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2);
-        }
-
-        .day-container.current-day-active {
-            border-color: var(--accent);
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
-        }
-
-        .day-title {
-            font-size: 1.15rem;
-            font-weight: bold;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 6px;
-            margin-bottom: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .today-badge {
-            background: var(--accent);
-            color: #000;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin: 0;
+            color: var(--text-title);
             text-transform: uppercase;
-            font-weight: 800;
         }
 
-        .exercise-row {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
-            transition: opacity 0.3s ease, transform 0.2s ease;
+        .subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 4px 0 0 0;
         }
 
-        .exercise-row:last-child { border-bottom: none; }
+        /* Day Selection Navigation Tabs */
+        .day-tabs {
+            display: flex;
+            background: #18181b;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 4px;
+            margin-bottom: 20px;
+            border: 1px solid var(--card-border);
+        }
 
-        .exercise-info {
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 10px 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            background: #27272a;
+            color: var(--text-title);
+        }
+
+        .tab-btn.is-today::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 4px;
+            background-color: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .progress-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .progress-bar-bg {
+            background: #27272a;
+            width: 120px;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* Exercise Cards Layout */
+        .exercise-view {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            min-height: 250px;
+        }
+
+        .ex-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ex-card.completed-card {
+            border-color: rgba(16, 185, 129, 0.2);
+            background: rgba(20, 20, 23, 0.6);
+        }
+
+        .ex-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 10px;
+            align-items: flex-start;
         }
 
-        .ex-name { font-weight: 600; font-size: 0.95rem; }
-        .ex-target { font-size: 0.85rem; color: var(--text-muted); font-weight: bold; }
+        .ex-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-title);
+            letter-spacing: -0.01em;
+            transition: color 0.2s ease;
+        }
 
-        .sets-tracker {
+        .ex-card.completed-card .ex-name {
+            color: var(--text-muted);
+            text-decoration: line-through;
+        }
+
+        .ex-scheme {
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: #27272a;
+            padding: 3px 8px;
+            border-radius: 6px;
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+
+        /* Interaction Targets */
+        .sets-grid {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .set-circle {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            border: 2px solid var(--accent);
+        .set-box {
+            flex: 1;
+            height: 44px;
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem;
-            font-weight: bold;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
             cursor: pointer;
             user-select: none;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            background: rgba(56, 189, 248, 0.05);
         }
 
-        .set-circle.completed {
-            background-color: var(--success);
+        .set-box.active-done {
+            background: var(--success-glow);
             border-color: var(--success);
-            color: #0b0f19;
-            transform: scale(0.95);
+            color: var(--success);
+            box-shadow: inset 0 0 6px rgba(16, 185, 129, 0.1);
         }
 
-        .exercise-row.all-done {
-            opacity: 0.35;
+        /* Footer Utilities */
+        .footer-actions {
+            margin-top: 32px;
+            display: flex;
+            justify-content: center;
         }
 
-        .reset-btn {
-            display: block;
-            width: 100%;
-            background: #ef4444;
-            color: white;
+        .clear-btn {
+            background: transparent;
             border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-top: 24px;
+            color: #ef4444;
+            font-size: 0.8rem;
+            font-weight: 600;
             cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            padding: 8px 16px;
         }
+
+        .clear-btn:hover { opacity: 1; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Weekly Workout Schedule</h1>
-        <p id="today-display" class="status-p">Syncing schedule...</p>
-    </header>
+    <div class="app-wrapper">
+        <header>
+            <h1 id="header-title">Workout Schedule</h1>
+            <p class="subtitle" id="global-status">Select a target day below</p>
+        </header>
 
-    <div id="workout-app"></div>
+        <nav class="day-tabs" id="day-tabs-container"></nav>
 
-    <button class="reset-btn" onclick="clearAllProgress()">Reset Week's Progress</button>
+        <div class="progress-container">
+            <span class="progress-text" id="progress-label">0% Complete</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-bar"></div>
+            </div>
+        </div>
+
+        <main class="exercise-view" id="exercise-render-zone"></main>
+
+        <footer class="footer-actions">
+            <button class="clear-btn" onclick="resetAllData()">Reset All Logged Progress</button>
+        </footer>
+    </div>
 
     <script>
-        // Exact schedule compiled perfectly from your spreadsheet image
+        // Data blueprint compiled perfectly from your sheet
         const routineData = [
             {
-                dayName: "Monday",
-                id: "Mon",
+                dayId: "Mon",
+                label: "MON",
+                fullName: "Monday // Push Focus",
                 exercises: [
                     { name: "Incline Bench Press", sets: 3, reps: "12" },
                     { name: "Bench Press", sets: 3, reps: "12" },
@@ -160,8 +276,9 @@
                 ]
             },
             {
-                dayName: "Tuesday",
-                id: "Tue",
+                dayId: "Tue",
+                label: "TUE",
+                fullName: "Tuesday // Pull & Abs",
                 exercises: [
                     { name: "Lat Pulldown", sets: 4, reps: "12" },
                     { name: "Seated Cable Row", sets: 3, reps: "12" },
@@ -171,8 +288,9 @@
                 ]
             },
             {
-                dayName: "Thursday",
-                id: "Thu",
+                dayId: "Thu",
+                label: "THU",
+                fullName: "Thursday // Shoulders & Arms",
                 exercises: [
                     { name: "Machine Shoulder Press", sets: 3, reps: "12" },
                     { name: "Lateral Raise", sets: 4, reps: "15" },
@@ -182,8 +300,9 @@
                 ]
             },
             {
-                dayName: "Saturday",
-                id: "Sat",
+                dayId: "Sat",
+                label: "SAT",
+                fullName: "Saturday // Hypertrophy Mix",
                 exercises: [
                     { name: "Incline Bench Press", sets: 3, reps: "12" },
                     { name: "Lat Pulldown", sets: 3, reps: "12" },
@@ -193,104 +312,157 @@
             }
         ];
 
-        // System to align JavaScript days to your active split days
-        const daysMap = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
-        const currentDayNum = new Date().getDay(); // 0 = Sun, 1 = Mon...
-        const activeDayId = daysMap[currentDayNum] || null;
+        const daysMapping = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
+        const realDayNum = new Date().getDay();
+        const trueTodayId = daysMapping[realDayNum] || null;
+        
+        // Active display state tracks selected day (defaults to today if active, else Mon)
+        let currentSelectedDayId = trueTodayId || "Mon";
 
-        function renderApp() {
-            const appContainer = document.getElementById('workout-app');
-            const todayDisplay = document.getElementById('today-display');
+        function initApp() {
+            renderTabs();
+            renderActiveDay();
+        }
+
+        function renderTabs() {
+            const tabsContainer = document.getElementById('day-tabs-container');
+            let tabsHtml = '';
             
-            if (activeDayId) {
-                todayDisplay.textContent = `Today is training day! Focus up.`;
-            } else {
-                todayDisplay.textContent = `Rest Day — Recovery & Nutrition Mode`;
-            }
-
-            let htmlContent = '';
-
             routineData.forEach(day => {
-                const isToday = day.id === activeDayId;
-                htmlContent += `
-                    <div class="day-container ${isToday ? 'current-day-active' : ''}">
-                        <div class="day-title">
-                            <span>${day.dayName}</span>
-                            ${isToday ? '<span class="today-badge">Today</span>' : ''}
-                        </div>
+                const isActive = day.dayId === currentSelectedDayId;
+                const isToday = day.dayId === trueTodayId;
+                tabsHtml += `
+                    <button class="tab-btn ${isActive ? 'active' : ''} ${isToday ? 'is-today' : ''}" 
+                            onclick="switchDayView('${day.dayId}')">
+                        ${day.label}
+                    </button>
                 `;
+            });
+            tabsContainer.innerHTML = tabsHtml;
+        }
 
-                day.exercises.forEach((ex, exIndex) => {
-                    let circlesHtml = '';
-                    let allSetsDone = true;
+        window.switchDayView = function(dayId) {
+            currentSelectedDayId = dayId;
+            renderTabs();
+            renderActiveDay();
+        }
+
+        function renderActiveDay() {
+            const renderZone = document.getElementById('exercise-render-zone');
+            const targetData = routineData.find(d => d.dayId === currentSelectedDayId);
+            
+            document.getElementById('header-title').textContent = targetData.fullName;
+            document.getElementById('global-status').textContent = targetData.dayId === trueTodayId ? "Active schedule for today" : "Viewing alternate day profile";
+
+            let exercisesHtml = '';
+            let globalTotalSets = 0;
+            let globalCompletedSets = 0;
+
+            targetData.exercises.forEach((ex, exIdx) => {
+                let setsHtml = '';
+                let completedCount = 0;
+                globalTotalSets += ex.sets;
+
+                for (let s = 1; s <= ex.sets; s++) {
+                    const storageKey = `${targetData.dayId}-${exIdx}-set-${s}`;
+                    const isDone = localStorage.getItem(storageKey) === 'true';
                     
-                    for(let i = 1; i <= ex.sets; i++) {
-                        const storageKey = `${day.id}-${exIndex}-set-${i}`;
-                        const isDone = localStorage.getItem(storageKey) === 'true';
-                        if(!isDone) allSetsDone = false;
-
-                        circlesHtml += `
-                            <div class="set-circle ${isDone ? 'completed' : ''}" 
-                                 onclick="toggleSet('${day.id}', ${exIndex}, ${i}, this, ${ex.sets})">
-                                ${isDone ? '✓' : i}
-                            </div>
-                        `;
+                    if (isDone) {
+                        completedCount++;
+                        globalCompletedSets++;
                     }
 
-                    htmlContent += `
-                        <div class="exercise-row ${allSetsDone ? 'all-done' : ''}" id="row-${day.id}-${exIndex}">
-                            <div class="exercise-info">
-                                <div class="ex-name">${ex.name}</div>
-                                <div class="ex-target">${ex.sets}x${ex.reps}</div>
-                            </div>
-                            <div class="sets-tracker">
-                                ${circlesHtml}
-                            </div>
+                    setsHtml += `
+                        <div class="set-box ${isDone ? 'active-done' : ''}" 
+                             onclick="toggleSetAction('${targetData.dayId}', ${exIdx}, ${s}, this)">
+                            ${isDone ? '✓' : 'S' + s}
                         </div>
                     `;
-                });
+                }
 
-                htmlContent += `</div>`;
+                const isExComplete = completedCount === ex.sets;
+
+                exercisesHtml += `
+                    <div class="ex-card ${isExComplete ? 'completed-card' : ''}" id="card-${targetData.dayId}-${exIdx}">
+                        <div class="ex-header">
+                            <span class="ex-name">${ex.name}</span>
+                            <span class="ex-scheme">${ex.sets}x${ex.reps}</span>
+                        </div>
+                        <div class="sets-grid">
+                            ${setsHtml}
+                        </div>
+                    </div>
+                `;
             });
 
-            appContainer.innerHTML = htmlContent;
+            renderZone.innerHTML = exercisesHtml;
+            updateMetrics(globalCompletedSets, globalTotalSets);
         }
 
-        window.toggleSet = function(dayId, exIndex, setNum, el, totalSets) {
-            const key = `${dayId}-${exIndex}-set-${setNum}`;
-            const currentlyDone = localStorage.getItem(key) === 'true';
+        window.toggleSetAction = function(dayId, exIdx, setNum, element) {
+            const storageKey = `${dayId}-${exIdx}-set-${setNum}`;
+            const isCurrentlyDone = localStorage.getItem(storageKey) === 'true';
+
+            if (isCurrentlyDone) {
+                localStorage.removeItem(storageKey);
+                element.classList.remove('active-done');
+                element.textContent = 'S' + setNum;
+            } else {
+                localStorage.setItem(storageKey, 'true');
+                element.classList.add('active-done');
+                element.textContent = '✓';
+            }
+
+            // Real-time card state re-evaluation
+            const targetData = routineData.find(d => d.dayId === dayId);
+            const cardElement = document.getElementById(`card-${dayId}-${exIdx}`);
+            const siblingBoxes = cardElement.querySelectorAll('.set-box');
             
-            if (currentlyDone) {
-                localStorage.removeItem(key);
-                el.classList.remove('completed');
-                el.textContent = setNum;
-            } else {
-                localStorage.setItem(key, 'true');
-                el.classList.add('completed');
-                el.textContent = '✓';
-            }
-
-            // Real-time block styling evaluation
-            const parentRow = document.getElementById(`row-${dayId}-${exIndex}`);
-            const circles = parentRow.querySelectorAll('.set-circle');
             let completedCount = 0;
-            circles.forEach(c => { if(c.classList.contains('completed')) completedCount++; });
+            siblingBoxes.forEach(box => {
+                if (box.classList.contains('active-done')) completedCount++;
+            });
 
-            if(completedCount === totalSets) {
-                parentRow.classList.add('all-done');
+            if (completedCount === siblingBoxes.length) {
+                cardElement.classList.add('completed-card');
             } else {
-                parentRow.classList.remove('all-done');
+                cardElement.classList.remove('completed-card');
             }
+
+            // Recalculate top session bar live
+            recalculateMetricsOnly(dayId);
         }
 
-        window.clearAllProgress = function() {
-            if(confirm("Are you sure you want to wipe out all checkmarks for this week?")) {
+        function recalculateMetricsOnly(dayId) {
+            const targetData = routineData.find(d => d.dayId === dayId);
+            let total = 0;
+            let finished = 0;
+
+            targetData.exercises.forEach((ex, exIdx) => {
+                total += ex.sets;
+                for (let s = 1; s <= ex.sets; s++) {
+                    if (localStorage.getItem(`${dayId}-${exIdx}-set-${s}`) === 'true') {
+                        finished++;
+                    }
+                }
+            });
+            updateMetrics(finished, total);
+        }
+
+        function updateMetrics(completed, total) {
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-label').textContent = `${percent}% Finished (${completed}/${total} Sets)`;
+        }
+
+        window.resetAllData = function() {
+            if (confirm("Reset tracking data across all days?")) {
                 localStorage.clear();
-                renderApp();
+                renderActiveDay();
             }
         }
 
-        renderApp();
+        initApp();
     </script>
 </body>
 </html>
