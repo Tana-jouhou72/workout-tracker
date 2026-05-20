@@ -344,6 +344,15 @@
             cursor: pointer;
             margin: 4px;
         }
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#09090b">
+        <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+    </script>
     </style>
 </head>
 <body>
