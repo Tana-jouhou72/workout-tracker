@@ -24,6 +24,8 @@
             margin: 0;
             padding: 16px;
             padding-bottom: 80px;
+            display: flex;
+            flex-direction: column;
         }
 
         .app-wrapper {
@@ -32,7 +34,7 @@
             margin: 0 auto;
         }
 
-        /* Bottom Core Navigation Matrix */
+        /* Bottom Navigation Matrix */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -71,7 +73,7 @@
         h1 { font-size: 1.25rem; font-weight: 700; margin: 0; text-transform: uppercase; }
         .subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0; }
 
-        /* Workout View Customization Controls */
+        /* Workout View Tabs */
         .day-tabs {
             display: flex;
             background: #18181b;
@@ -199,7 +201,17 @@
         }
         .cal-day.is-today-highlight { border: 1px solid var(--accent); color: var(--text-title); }
 
-        /* Analytics Stack List */
+        /* Analytics Date-Grouped Blocks */
+        .date-group-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 10px;
+            margin-top: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
         .stat-row {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -211,9 +223,9 @@
             align-items: center;
         }
 
-        .stat-count { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+        .stat-count { font-weight: 700; color: var(--success); font-size: 0.9rem; }
 
-        .system-actions { margin-top: 24px; text-align: center; }
+        .system-actions { margin-top: 32px; text-align: center; }
         .util-btn {
             background: transparent;
             border: 1px solid var(--card-border);
@@ -255,7 +267,7 @@
         <div id="panel-stats" class="view-panel">
             <header>
                 <h1>Exercise Volume Metrics</h1>
-                <p class="subtitle">Accumulated working sets historical registry.</p>
+                <p class="subtitle">Historical registry organized chronologically by day.</p>
             </header>
             <div id="analytics-target-list"></div>
             
@@ -274,7 +286,6 @@
     </div>
 
     <script>
-        // Production-ready data layout structure from your precise tracking routine
         const baseRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
                 { name: "Incline Bench Press", sets: 3, reps: "12" },
@@ -305,11 +316,9 @@
             ]}
         ];
 
-        // Central State Engines
         let selectedDayId = baseRoutine[0].id;
-        let viewDate = new Date(); // Tracks the rendered month frame
+        let viewDate = new Date(); 
 
-        // Initialize state arrays from secure localStorage engines
         let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
         let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
 
@@ -438,8 +447,6 @@
             
             for (let day = 1; day <= totalDaysInMonth; day++) {
                 const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                
-                // Scan matrix logs to evaluate if sets were mapped to this layout code date
                 let hasLoggedWorkout = Object.keys(operationalLog).some(key => key.startsWith(dateString));
                 const isToday = dateString === todayStamp ? 'is-today-highlight' : '';
                 const workoutClass = hasLoggedWorkout ? 'has-workout' : '';
@@ -450,31 +457,72 @@
             targetGrid.innerHTML = gridHtml;
         }
 
-        // --- ANALYTICS TAB FUNCTIONS ---
+        // --- Restructured Date & Analytics Processing Engine ---
+        function getOrdinalSuffix(day) {
+            if (day > 3 && day < 21) return 'th';
+            switch (day % 10) {
+                case 1:  return "st";
+                case 2:  return "nd";
+                case 3:  return "rd";
+                default: return "th";
+            }
+        }
+
+        function formatLogDate(dateStr) {
+            const [year, month, day] = dateStr.split('-').map(Number);
+            const dateObj = new Date(year, month - 1, day);
+            
+            const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
+            const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
+            
+            return `${weekday}, ${monthName} ${day}${getOrdinalSuffix(day)}`;
+        }
+
         function renderStatsView() {
             const listTarget = document.getElementById('analytics-target-list');
-            let volumeAggregation = {};
+            let groupedByDate = {};
 
-            // Accumulate sets dynamically from records
-            Object.values(operationalLog).forEach(entry => {
-                if(entry && entry.exerciseName) {
-                    volumeAggregation[entry.exerciseName] = (volumeAggregation[entry.exerciseName] || 0) + 1;
+            // Parse keys into structured groupings
+            Object.keys(operationalLog).forEach(logId => {
+                const entry = operationalLog[logId];
+                if (!entry || !entry.exerciseName) return;
+                
+                const datePart = logId.substring(0, 10); 
+                if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return;
+
+                if (!groupedByDate[datePart]) {
+                    groupedByDate[datePart] = {};
                 }
+                
+                const exName = entry.exerciseName;
+                groupedByDate[datePart][exName] = (groupedByDate[datePart][exName] || 0) + 1;
             });
 
-            if (Object.keys(volumeAggregation).length === 0) {
+            const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
+
+            if (sortedDates.length === 0) {
                 listTarget.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:40px;">No workout volume logged yet.</p>`;
                 return;
             }
 
-            listTarget.innerHTML = Object.entries(volumeAggregation)
-                .sort((a, b) => b[1] - a[1]) // High-to-low ranking
-                .map(([name, totalSets]) => `
-                    <div class="stat-row">
-                        <span style="font-weight:600; font-size:0.9rem;">${name}</span>
-                        <span class="stat-count">${totalSets} Total Sets</span>
+            listTarget.innerHTML = sortedDates.map(dateStr => {
+                const formattedDate = formatLogDate(dateStr);
+                const exercises = groupedByDate[dateStr];
+                
+                const exercisesHtml = Object.entries(exercises).map(([name, sets]) => `
+                    <div class="stat-row" style="margin-bottom: 6px; background: #19191c;">
+                        <span style="font-weight:500; font-size:0.9rem;">${name}</span>
+                        <span class="stat-count">${sets} Completed ${sets === 1 ? 'Set' : 'Sets'}</span>
                     </div>
                 `).join('');
+
+                return `
+                    <div style="margin-bottom: 20px;">
+                        <div class="date-group-title">${formattedDate}</div>
+                        ${exercisesHtml}
+                    </div>
+                `;
+            }).join('');
         }
 
         // --- BACKUP UTILITIES ---
@@ -501,7 +549,6 @@
             } catch(e) { alert("Data verification processing error."); }
         }
 
-        // Auto-detect current day mapping context to match system parameters on init
         const daysTrackerMap = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
         const systemDayIndex = new Date().getDay();
         if (daysTrackerMap[systemDayIndex]) {
