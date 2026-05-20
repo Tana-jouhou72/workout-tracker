@@ -74,6 +74,15 @@
         header { margin-bottom: 20px; }
         .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { font-size: 1.25rem; font-weight: 700; margin: 0; text-transform: uppercase; }
+        
+        .live-date-header {
+            margin: 4px 0 0 0;
+            font-size: 0.9rem;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
         .subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0; }
 
         /* Workout View Tabs */
@@ -341,7 +350,8 @@
             <header class="header-row">
                 <div>
                     <h1 id="workout-day-title">Target Loading...</h1>
-                    <p class="subtitle" id="workout-subtitle">Tap completed sets. Use +/- to add volume.</p>
+                    <div id="workout-date-header" class="live-date-header"></div>
+                    <p class="subtitle" id="workout-subtitle" style="margin-top: 6px;">Tap completed sets. Use +/- to add volume.</p>
                 </div>
                 <button id="edit-mode-toggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit Split</button>
             </header>
@@ -416,7 +426,6 @@
             ]}
         ];
 
-        // Central State Controllers
         let baseRoutine = JSON.parse(localStorage.getItem('alpha_routine')) || factoryRoutine;
         let selectedDayId = baseRoutine[0].id;
         let viewDate = new Date(); 
@@ -434,7 +443,6 @@
         const todayStamp = getLocalDateString();
 
         function switchMainView(targetPanel, navBtn) {
-            // Turn off edit mode automatically on view swap to secure logic tracking
             if (isEditMode) toggleEditMode();
 
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
@@ -510,7 +518,7 @@
             }
         }
 
-        // --- WORKOUT RENDERING MATRIX ---
+        // --- WORKOUT RENDERING ENGINE ---
         function initWorkoutTab() {
             const tabsContainer = document.getElementById('routine-tabs');
             tabsContainer.innerHTML = baseRoutine.map(day => `
@@ -526,11 +534,32 @@
             initWorkoutTab();
         }
 
+        // Helper to compute target dates relative to the active rolling calendar week
+        function getWeekdayTargetDateString(dayId) {
+            const indicesMap = { "Mon": 1, "Tue": 2, "Thu": 4, "Sat": 6 };
+            const targetIndex = indicesMap[dayId];
+            if (targetIndex === undefined) return "";
+
+            const currentObj = new Date();
+            const systemDayIdx = currentObj.getDay(); // 0 = Sun, 1 = Mon...
+            const offsetDiff = targetIndex - systemDayIdx;
+
+            const computedTarget = new Date(currentObj);
+            computedTarget.setDate(currentObj.getDate() + offsetDiff);
+
+            const dayNum = computedTarget.getDate();
+            const monthName = computedTarget.toLocaleDateString('en-US', { month: 'long' });
+            
+            return `${dayId}, ${monthName} ${dayNum}${getOrdinalSuffix(dayNum)}`;
+        }
+
         function renderExerciseCards() {
             const container = document.getElementById('exercise-cards-container');
             const formZone = document.getElementById('add-exercise-form-zone');
             const dataProfile = baseRoutine.find(d => d.id === selectedDayId);
+            
             document.getElementById('workout-day-title').textContent = dataProfile.title;
+            document.getElementById('workout-date-header').textContent = getWeekdayTargetDateString(selectedDayId);
 
             if (dataProfile.exercises.length === 0) {
                 container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:40px 0;">No exercises added for this day profile.</p>`;
@@ -550,7 +579,6 @@
                         `;
                     }
 
-                    // Dynamic switch layout depending on active validation parameters
                     const actionInterface = isEditMode ? `
                         <button class="delete-ex-btn" onclick="removeExerciseElement('${selectedDayId}', ${idx})">Remove</button>
                     ` : `
@@ -575,7 +603,6 @@
                 }).join('');
             }
 
-            // Render Add Exercise Context Block
             if (isEditMode) {
                 formZone.innerHTML = `
                     <div class="add-ex-form">
@@ -605,7 +632,7 @@
         window.scaleSetVolume = function(scaleKey, change) {
             const exIdx = scaleKey.split('-').pop();
             const dayTarget = baseRoutine.find(d => d.id === selectedDayId);
-            if (!dayTarget.exercises[exIdx]) return; // Boundary validation fail protection
+            if (!dayTarget.exercises[exIdx]) return; 
             
             const defaultSets = dayTarget.exercises[exIdx].sets;
             let current = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : defaultSets;
