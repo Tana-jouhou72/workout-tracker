@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aesthetic Workout Tracker</title>
+    <title>Aesthetic Performance Matrix</title>
     <style>
         :root {
             --bg-main: #09090b;
@@ -12,21 +12,18 @@
             --text-title: #ffffff;
             --text-body: #e4e4e7;
             --text-muted: #71717a;
-            --accent-glow: rgba(6, 182, 212, 0.15);
-            --accent: #06b6d4; /* Cyber Cyan */
-            --success: #10b981; /* Emerald */
-            --success-glow: rgba(16, 185, 129, 0.15);
+            --accent: #06b6d4; 
+            --success: #10b981; 
+            --success-glow: rgba(16, 185, 129, 0.12);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
             background-color: var(--bg-main);
             color: var(--text-body);
             margin: 0;
-            padding: 20px 16px;
-            display: flex;
-            flex-content: column;
-            align-items: center;
+            padding: 16px;
+            padding-bottom: 80px;
         }
 
         .app-wrapper {
@@ -35,33 +32,53 @@
             margin: 0 auto;
         }
 
-        header {
-            margin-bottom: 24px;
+        /* Bottom Core Navigation Matrix */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #101012;
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            padding: 8px 16px;
+            z-index: 100;
         }
 
-        h1 {
-            font-size: 1.25rem;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            margin: 0;
-            color: var(--text-title);
-            text-transform: uppercase;
-        }
-
-        .subtitle {
-            font-size: 0.85rem;
+        .nav-link {
+            flex: 1;
+            background: transparent;
+            border: none;
             color: var(--text-muted);
-            margin: 4px 0 0 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 10px 0;
+            cursor: pointer;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        /* Day Selection Navigation Tabs */
+        .nav-link.active-view {
+            color: var(--accent);
+        }
+
+        /* View Panels */
+        .view-panel { display: none; }
+        .view-panel.active-panel { display: block; }
+
+        header { margin-bottom: 20px; }
+        h1 { font-size: 1.25rem; font-weight: 700; margin: 0; text-transform: uppercase; }
+        .subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0; }
+
+        /* Workout View Customization Controls */
         .day-tabs {
             display: flex;
             background: #18181b;
             padding: 4px;
             border-radius: 10px;
             gap: 4px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             border: 1px solid var(--card-border);
         }
 
@@ -71,128 +88,50 @@
             border: none;
             color: var(--text-muted);
             padding: 10px 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             border-radius: 7px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: center;
-            position: relative;
         }
 
-        .tab-btn.active {
-            background: #27272a;
-            color: var(--text-title);
-        }
-
-        .tab-btn.is-today::after {
-            content: '';
-            position: absolute;
-            bottom: 4px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 50%;
-        }
-
-        /* Progress Bar */
-        .progress-container {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .progress-text {
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .progress-bar-bg {
-            background: #27272a;
-            width: 120px;
-            height: 6px;
-            border-radius: 3px;
-            overflow: hidden;
-        }
-
-        .progress-bar-fill {
-            background: var(--accent);
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 8px var(--accent);
-        }
-
-        /* Exercise Cards Layout */
-        .exercise-view {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            min-height: 250px;
-        }
+        .tab-btn.active { background: #27272a; color: var(--text-title); }
 
         .ex-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .ex-card.completed-card {
-            border-color: rgba(16, 185, 129, 0.2);
-            background: rgba(20, 20, 23, 0.6);
+            margin-bottom: 12px;
         }
 
         .ex-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
+            margin-bottom: 14px;
         }
 
-        .ex-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: var(--text-title);
-            letter-spacing: -0.01em;
-            transition: color 0.2s ease;
-        }
+        .ex-title-block { display: flex; flex-direction: column; }
+        .ex-name { font-size: 0.95rem; font-weight: 600; color: var(--text-title); }
+        .ex-scheme { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
-        .ex-card.completed-card .ex-name {
-            color: var(--text-muted);
-            text-decoration: line-through;
-        }
-
-        .ex-scheme {
-            font-size: 0.8rem;
-            font-weight: 700;
+        .set-modifiers { display: flex; gap: 6px; }
+        .mod-btn {
             background: #27272a;
-            padding: 3px 8px;
+            border: none;
+            color: var(--text-body);
+            width: 28px;
+            height: 28px;
             border-radius: 6px;
-            color: var(--accent);
-            letter-spacing: 0.05em;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
         }
 
-        /* Interaction Targets */
-        .sets-grid {
-            display: flex;
-            gap: 10px;
-        }
-
+        .sets-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .set-box {
-            flex: 1;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: #18181b;
             border: 1px solid var(--card-border);
             border-radius: 8px;
@@ -204,265 +143,372 @@
             color: var(--text-muted);
             cursor: pointer;
             user-select: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .set-box.active-done {
             background: var(--success-glow);
             border-color: var(--success);
             color: var(--success);
-            box-shadow: inset 0 0 6px rgba(16, 185, 129, 0.1);
         }
 
-        /* Footer Utilities */
-        .footer-actions {
-            margin-top: 32px;
+        /* Calendar View Matrix Layout */
+        .calendar-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
         }
 
-        .clear-btn {
-            background: transparent;
-            border: none;
-            color: #ef4444;
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 12px;
+            border-radius: 14px;
+        }
+
+        .weekday-label {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            padding-bottom: 6px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 0.8rem;
             font-weight: 600;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.2s ease;
-            padding: 8px 16px;
+            border-radius: 8px;
+            background: #18181b;
+            color: var(--text-muted);
+            border: 1px solid transparent;
         }
 
-        .clear-btn:hover { opacity: 1; }
+        .cal-day.empty { background: transparent; border: none; }
+        .cal-day.has-workout {
+            background: var(--success-glow);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.3);
+            font-weight: 700;
+        }
+        .cal-day.is-today-highlight { border: 1px solid var(--accent); color: var(--text-title); }
+
+        /* Analytics Stack List */
+        .stat-row {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-count { font-weight: 700; color: var(--accent); font-size: 0.95rem; }
+
+        .system-actions { margin-top: 24px; text-align: center; }
+        .util-btn {
+            background: transparent;
+            border: 1px solid var(--card-border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            font-size: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 4px;
+        }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
-        <header>
-            <h1 id="header-title">Workout Schedule</h1>
-            <p class="subtitle" id="global-status">Select a target day below</p>
-        </header>
 
-        <nav class="day-tabs" id="day-tabs-container"></nav>
+        <div id="panel-workout" class="view-panel active-panel">
+            <header>
+                <h1 id="workout-day-title">Target Loading...</h1>
+                <p class="subtitle">Tap completed sets. Use +/- to add volume.</p>
+            </header>
+            <nav class="day-tabs" id="routine-tabs"></nav>
+            <main id="exercise-cards-container"></main>
+        </div>
 
-        <div class="progress-container">
-            <span class="progress-text" id="progress-label">0% Complete</span>
-            <div class="progress-bar-bg">
-                <div class="progress-bar-fill" id="progress-bar"></div>
+        <div id="panel-calendar" class="view-panel">
+            <header>
+                <h1>Activity Matrix</h1>
+                <p class="subtitle">Highlighted dates denote logged exercise history.</p>
+            </header>
+            <div class="calendar-header">
+                <button class="mod-btn" onclick="adjustMonth(-1)">&lt;</button>
+                <span id="calendar-month-year" style="font-weight:700;"></span>
+                <button class="mod-btn" onclick="adjustMonth(1)">&gt;</button>
+            </div>
+            <div class="cal-grid" id="calendar-grid-target"></div>
+        </div>
+
+        <div id="panel-stats" class="view-panel">
+            <header>
+                <h1>Exercise Volume Metrics</h1>
+                <p class="subtitle">Accumulated working sets historical registry.</p>
+            </header>
+            <div id="analytics-target-list"></div>
+            
+            <div class="system-actions">
+                <button class="util-btn" onclick="exportData()">Export Data Backup</button>
+                <button class="util-btn" onclick="importData()">Import Data Backup</button>
             </div>
         </div>
 
-        <main class="exercise-view" id="exercise-render-zone"></main>
+        <nav class="bottom-nav">
+            <button class="nav-link active-view" onclick="switchMainView('workout', this)">Workout</button>
+            <button class="nav-link" onclick="switchMainView('calendar', this)">Calendar</button>
+            <button class="nav-link" onclick="switchMainView('stats', this)">Analytics</button>
+        </nav>
 
-        <footer class="footer-actions">
-            <button class="clear-btn" onclick="resetAllData()">Reset All Logged Progress</button>
-        </footer>
     </div>
 
     <script>
-        // Data blueprint compiled perfectly from your sheet
-        const routineData = [
-            {
-                dayId: "Mon",
-                label: "MON",
-                fullName: "Monday // Push Focus",
-                exercises: [
-                    { name: "Incline Bench Press", sets: 3, reps: "12" },
-                    { name: "Bench Press", sets: 3, reps: "12" },
-                    { name: "Dumbbell Overhead Press", sets: 3, reps: "12" },
-                    { name: "Lateral Raise", sets: 4, reps: "15" },
-                    { name: "Tricep Rope Pushdown", sets: 3, reps: "12" }
-                ]
-            },
-            {
-                dayId: "Tue",
-                label: "TUE",
-                fullName: "Tuesday // Pull & Abs",
-                exercises: [
-                    { name: "Lat Pulldown", sets: 4, reps: "12" },
-                    { name: "Seated Cable Row", sets: 3, reps: "12" },
-                    { name: "Facepull", sets: 3, reps: "15" },
-                    { name: "Bicep Curl", sets: 3, reps: "12" },
-                    { name: "Hanging Leg Raise", sets: 3, reps: "10" }
-                ]
-            },
-            {
-                dayId: "Thu",
-                label: "THU",
-                fullName: "Thursday // Shoulders & Arms",
-                exercises: [
-                    { name: "Machine Shoulder Press", sets: 3, reps: "12" },
-                    { name: "Lateral Raise", sets: 4, reps: "15" },
-                    { name: "Rear Delt Fly", sets: 3, reps: "12" },
-                    { name: "Bicep Curl", sets: 3, reps: "12" },
-                    { name: "Dumbbell Overhead Extension", sets: 3, reps: "10" }
-                ]
-            },
-            {
-                dayId: "Sat",
-                label: "SAT",
-                fullName: "Saturday // Hypertrophy Mix",
-                exercises: [
-                    { name: "Incline Bench Press", sets: 3, reps: "12" },
-                    { name: "Lat Pulldown", sets: 3, reps: "12" },
-                    { name: "Cable Lateral Raise", sets: 3, reps: "12" },
-                    { name: "Hammer Curl", sets: 3, reps: "12" }
-                ]
-            }
+        // Production-ready data layout structure from your precise tracking routine
+        const baseRoutine = [
+            { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
+                { name: "Incline Bench Press", sets: 3, reps: "12" },
+                { name: "Bench Press", sets: 3, reps: "12" },
+                { name: "Dumbbell Overhead Press", sets: 3, reps: "12" },
+                { name: "Lateral Raise", sets: 4, reps: "15" },
+                { name: "Tricep Rope Pushdown", sets: 3, reps: "12" }
+            ]},
+            { id: "Tue", label: "TUE", title: "Tuesday // Lat Width & Abs", exercises: [
+                { name: "Lat Pulldown", sets: 4, reps: "12" },
+                { name: "Seated Cable Row", sets: 3, reps: "12" },
+                { name: "Facepull", sets: 3, reps: "15" },
+                { name: "Bicep Curl", sets: 3, reps: "12" },
+                { name: "Hanging Leg Raise", sets: 3, reps: "10" }
+            ]},
+            { id: "Thu", label: "THU", title: "Thursday // Shoulder Width Engine", exercises: [
+                { name: "Machine Shoulder Press", sets: 3, reps: "12" },
+                { name: "Lateral Raise", sets: 4, reps: "15" },
+                { name: "Rear Delt Fly", sets: 3, reps: "12" },
+                { name: "Bicep Curl", sets: 3, reps: "12" },
+                { name: "Dumbbell Overhead Extension", sets: 3, reps: "10" }
+            ]},
+            { id: "Sat", label: "SAT", title: "Saturday // Density Hypertrophy", exercises: [
+                { name: "Incline Bench Press", sets: 3, reps: "12" },
+                { name: "Lat Pulldown", sets: 3, reps: "12" },
+                { name: "Cable Lateral Raise", sets: 3, reps: "12" },
+                { name: "Hammer Curl", sets: 3, reps: "12" }
+            ]}
         ];
 
-        const daysMapping = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
-        const realDayNum = new Date().getDay();
-        const trueTodayId = daysMapping[realDayNum] || null;
-        
-        // Active display state tracks selected day (defaults to today if active, else Mon)
-        let currentSelectedDayId = trueTodayId || "Mon";
+        // Central State Engines
+        let selectedDayId = baseRoutine[0].id;
+        let viewDate = new Date(); // Tracks the rendered month frame
 
-        function initApp() {
-            renderTabs();
-            renderActiveDay();
+        // Initialize state arrays from secure localStorage engines
+        let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
+        let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
+
+        function getLocalDateString(date = new Date()) {
+            const offset = date.getTimezoneOffset();
+            const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
+            return adjustedDate.toISOString().split('T')[0];
         }
 
-        function renderTabs() {
-            const tabsContainer = document.getElementById('day-tabs-container');
-            let tabsHtml = '';
+        const todayStamp = getLocalDateString();
+
+        function switchMainView(targetPanel, navBtn) {
+            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
+            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active-view'));
             
-            routineData.forEach(day => {
-                const isActive = day.dayId === currentSelectedDayId;
-                const isToday = day.dayId === trueTodayId;
-                tabsHtml += `
-                    <button class="tab-btn ${isActive ? 'active' : ''} ${isToday ? 'is-today' : ''}" 
-                            onclick="switchDayView('${day.dayId}')">
-                        ${day.label}
-                    </button>
-                `;
-            });
-            tabsContainer.innerHTML = tabsHtml;
+            document.getElementById(`panel-${targetPanel}`).classList.add('active-panel');
+            navBtn.classList.add('active-view');
+
+            if (targetPanel === 'calendar') renderCalendarView();
+            if (targetPanel === 'stats') renderStatsView();
         }
 
-        window.switchDayView = function(dayId) {
-            currentSelectedDayId = dayId;
-            renderTabs();
-            renderActiveDay();
+        // --- WORKOUT TAB FUNCTIONS ---
+        function initWorkoutTab() {
+            const tabsContainer = document.getElementById('routine-tabs');
+            tabsContainer.innerHTML = baseRoutine.map(day => `
+                <button class="tab-btn ${day.id === selectedDayId ? 'active' : ''}" onclick="changeActiveRoutineDay('${day.id}')">
+                    ${day.label}
+                </button>
+            `).join('');
+            renderExerciseCards();
         }
 
-        function renderActiveDay() {
-            const renderZone = document.getElementById('exercise-render-zone');
-            const targetData = routineData.find(d => d.dayId === currentSelectedDayId);
-            
-            document.getElementById('header-title').textContent = targetData.fullName;
-            document.getElementById('global-status').textContent = targetData.dayId === trueTodayId ? "Active schedule for today" : "Viewing alternate day profile";
+        function changeActiveRoutineDay(dayId) {
+            selectedDayId = dayId;
+            initWorkoutTab();
+        }
 
-            let exercisesHtml = '';
-            let globalTotalSets = 0;
-            let globalCompletedSets = 0;
+        function renderExerciseCards() {
+            const container = document.getElementById('exercise-cards-container');
+            const dataProfile = baseRoutine.find(d => d.id === selectedDayId);
+            document.getElementById('workout-day-title').textContent = dataProfile.title;
 
-            targetData.exercises.forEach((ex, exIdx) => {
-                let setsHtml = '';
-                let completedCount = 0;
-                globalTotalSets += ex.sets;
-
-                for (let s = 1; s <= ex.sets; s++) {
-                    const storageKey = `${targetData.dayId}-${exIdx}-set-${s}`;
-                    const isDone = localStorage.getItem(storageKey) === 'true';
-                    
-                    if (isDone) {
-                        completedCount++;
-                        globalCompletedSets++;
-                    }
-
-                    setsHtml += `
-                        <div class="set-box ${isDone ? 'active-done' : ''}" 
-                             onclick="toggleSetAction('${targetData.dayId}', ${exIdx}, ${s}, this)">
-                            ${isDone ? '✓' : 'S' + s}
+            container.innerHTML = dataProfile.exercises.map((ex, idx) => {
+                const scaleKey = `${todayStamp}-${selectedDayId}-${idx}`;
+                const currentSetCount = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : ex.sets;
+                
+                let setBoxesHtml = '';
+                for (let s = 1; s <= currentSetCount; s++) {
+                    const logId = `${todayStamp}-${selectedDayId}-${idx}-S${s}`;
+                    const activeChecked = operationalLog[logId] ? 'active-done' : '';
+                    setBoxesHtml += `
+                        <div class="set-box ${activeChecked}" onclick="toggleSetEngagement('${logId}')">
+                            ${operationalLog[logId] ? '✓' : 'S' + s}
                         </div>
                     `;
                 }
 
-                const isExComplete = completedCount === ex.sets;
-
-                exercisesHtml += `
-                    <div class="ex-card ${isExComplete ? 'completed-card' : ''}" id="card-${targetData.dayId}-${exIdx}">
+                return `
+                    <div class="ex-card">
                         <div class="ex-header">
-                            <span class="ex-name">${ex.name}</span>
-                            <span class="ex-scheme">${ex.sets}x${ex.reps}</span>
+                            <div class="ex-title-block">
+                                <span class="ex-name">${ex.name}</span>
+                                <span class="ex-scheme">${currentSetCount} Sets x ${ex.reps} Reps</span>
+                            </div>
+                            <div class="set-modifiers">
+                                <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', -1)">-</button>
+                                <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', 1)">+</button>
+                            </div>
                         </div>
-                        <div class="sets-grid">
-                            ${setsHtml}
-                        </div>
+                        <div class="sets-grid">${setBoxesHtml}</div>
                     </div>
                 `;
-            });
-
-            renderZone.innerHTML = exercisesHtml;
-            updateMetrics(globalCompletedSets, globalTotalSets);
+            }).join('');
         }
 
-        window.toggleSetAction = function(dayId, exIdx, setNum, element) {
-            const storageKey = `${dayId}-${exIdx}-set-${setNum}`;
-            const isCurrentlyDone = localStorage.getItem(storageKey) === 'true';
+        window.scaleSetVolume = function(scaleKey, change) {
+            const defaultSets = baseRoutine.find(d => d.id === selectedDayId).exercises[scaleKey.split('-').pop()].sets;
+            let current = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : defaultSets;
+            current = Math.max(0, current + change);
+            dynamicScales[scaleKey] = current;
+            localStorage.setItem('alpha_scales', JSON.stringify(dynamicScales));
+            renderExerciseCards();
+        }
 
-            if (isCurrentlyDone) {
-                localStorage.removeItem(storageKey);
-                element.classList.remove('active-done');
-                element.textContent = 'S' + setNum;
+        window.toggleSetEngagement = function(logId) {
+            if (operationalLog[logId]) {
+                delete operationalLog[logId];
             } else {
-                localStorage.setItem(storageKey, 'true');
-                element.classList.add('active-done');
-                element.textContent = '✓';
+                operationalLog[logId] = { exerciseName: getExNameFromLogId(logId), timestamp: Date.now() };
             }
+            localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
+            renderExerciseCards();
+        }
 
-            // Real-time card state re-evaluation
-            const targetData = routineData.find(d => d.dayId === dayId);
-            const cardElement = document.getElementById(`card-${dayId}-${exIdx}`);
-            const siblingBoxes = cardElement.querySelectorAll('.set-box');
+        function getExNameFromLogId(logId) {
+            const parts = logId.split('-');
+            const dayId = parts[3]; 
+            const exIdx = parts[4]; 
+            return baseRoutine.find(d => d.id === dayId).exercises[exIdx].name;
+        }
+
+        // --- CALENDAR TAB FUNCTIONS ---
+        window.adjustMonth = function(direction) {
+            viewDate.setMonth(viewDate.getMonth() + direction);
+            renderCalendarView();
+        }
+
+        function renderCalendarView() {
+            const targetGrid = document.getElementById('calendar-grid-target');
+            const monthYearLabel = document.getElementById('calendar-month-year');
             
-            let completedCount = 0;
-            siblingBoxes.forEach(box => {
-                if (box.classList.contains('active-done')) completedCount++;
-            });
-
-            if (completedCount === siblingBoxes.length) {
-                cardElement.classList.add('completed-card');
-            } else {
-                cardElement.classList.remove('completed-card');
+            const year = viewDate.getFullYear();
+            const month = viewDate.getMonth();
+            
+            monthYearLabel.textContent = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDayIndex = new Date(year, month, 1).getDay();
+            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            let gridHtml = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'].map(d => `<div class="weekday-label">${d}</div>`).join('');
+            
+            for (let i = 0; i < firstDayIndex; i++) {
+                gridHtml += `<div class="cal-day empty"></div>`;
             }
-
-            // Recalculate top session bar live
-            recalculateMetricsOnly(dayId);
+            
+            for (let day = 1; day <= totalDaysInMonth; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Scan matrix logs to evaluate if sets were mapped to this layout code date
+                let hasLoggedWorkout = Object.keys(operationalLog).some(key => key.startsWith(dateString));
+                const isToday = dateString === todayStamp ? 'is-today-highlight' : '';
+                const workoutClass = hasLoggedWorkout ? 'has-workout' : '';
+                
+                gridHtml += `<div class="cal-day ${isToday} ${workoutClass}">${day}</div>`;
+            }
+            
+            targetGrid.innerHTML = gridHtml;
         }
 
-        function recalculateMetricsOnly(dayId) {
-            const targetData = routineData.find(d => d.dayId === dayId);
-            let total = 0;
-            let finished = 0;
+        // --- ANALYTICS TAB FUNCTIONS ---
+        function renderStatsView() {
+            const listTarget = document.getElementById('analytics-target-list');
+            let volumeAggregation = {};
 
-            targetData.exercises.forEach((ex, exIdx) => {
-                total += ex.sets;
-                for (let s = 1; s <= ex.sets; s++) {
-                    if (localStorage.getItem(`${dayId}-${exIdx}-set-${s}`) === 'true') {
-                        finished++;
-                    }
+            // Accumulate sets dynamically from records
+            Object.values(operationalLog).forEach(entry => {
+                if(entry && entry.exerciseName) {
+                    volumeAggregation[entry.exerciseName] = (volumeAggregation[entry.exerciseName] || 0) + 1;
                 }
             });
-            updateMetrics(finished, total);
-        }
 
-        function updateMetrics(completed, total) {
-            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
-            document.getElementById('progress-bar').style.width = `${percent}%`;
-            document.getElementById('progress-label').textContent = `${percent}% Finished (${completed}/${total} Sets)`;
-        }
-
-        window.resetAllData = function() {
-            if (confirm("Reset tracking data across all days?")) {
-                localStorage.clear();
-                renderActiveDay();
+            if (Object.keys(volumeAggregation).length === 0) {
+                listTarget.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:40px;">No workout volume logged yet.</p>`;
+                return;
             }
+
+            listTarget.innerHTML = Object.entries(volumeAggregation)
+                .sort((a, b) => b[1] - a[1]) // High-to-low ranking
+                .map(([name, totalSets]) => `
+                    <div class="stat-row">
+                        <span style="font-weight:600; font-size:0.9rem;">${name}</span>
+                        <span class="stat-count">${totalSets} Total Sets</span>
+                    </div>
+                `).join('');
         }
 
-        initApp();
+        // --- BACKUP UTILITIES ---
+        window.exportData = function() {
+            const dataPkg = { log: operationalLog, scales: dynamicScales };
+            const encryptedStr = btoa(JSON.stringify(dataPkg));
+            navigator.clipboard.writeText(encryptedStr);
+            alert("Secure backup data code copied directly to your clipboard! Paste and save it safely anywhere.");
+        }
+
+        window.importData = function() {
+            const code = prompt("Paste your exported backup code package string below:");
+            if (!code) return;
+            try {
+                const parsed = JSON.parse(atob(code));
+                if (parsed.log && parsed.scales) {
+                    operationalLog = parsed.log;
+                    dynamicScales = parsed.scales;
+                    localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
+                    localStorage.setItem('alpha_scales', JSON.stringify(dynamicScales));
+                    alert("Import successful! Data state synchronized.");
+                    renderExerciseCards();
+                } else { alert("Invalid backup profile layout structural schema."); }
+            } catch(e) { alert("Data verification processing error."); }
+        }
+
+        // Auto-detect current day mapping context to match system parameters on init
+        const daysTrackerMap = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
+        const systemDayIndex = new Date().getDay();
+        if (daysTrackerMap[systemDayIndex]) {
+            selectedDayId = daysTrackerMap[systemDayIndex];
+        }
+
+        initWorkoutTab();
     </script>
 </body>
 </html>
