@@ -15,6 +15,8 @@
             --accent: #06b6d4; 
             --success: #10b981; 
             --success-glow: rgba(16, 185, 129, 0.12);
+            --danger: #f43f5e;
+            --danger-glow: rgba(244, 63, 94, 0.15);
         }
 
         body {
@@ -70,6 +72,7 @@
         .view-panel.active-panel { display: block; }
 
         header { margin-bottom: 20px; }
+        .header-row { display: flex; justify-content: space-between; align-items: flex-start; }
         h1 { font-size: 1.25rem; font-weight: 700; margin: 0; text-transform: uppercase; }
         .subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0; }
 
@@ -104,6 +107,7 @@
             border-radius: 14px;
             padding: 16px;
             margin-bottom: 12px;
+            position: relative;
         }
 
         .ex-header {
@@ -151,6 +155,97 @@
             background: var(--success-glow);
             border-color: var(--success);
             color: var(--success);
+        }
+
+        /* Editing Panel Additions */
+        .edit-toggle-btn {
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            color: var(--text-body);
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .edit-toggle-btn.mode-on {
+            background: rgba(6, 182, 212, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .delete-ex-btn {
+            background: var(--danger-glow);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .add-ex-form {
+            background: #111113;
+            border: 1px dashed var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .form-input {
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            color: var(--text-title);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-row-split {
+            display: flex;
+            gap: 12px;
+        }
+
+        .form-row-split .form-group {
+            flex: 1;
+        }
+
+        .save-ex-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-top: 4px;
         }
 
         /* Calendar View Matrix Layout */
@@ -243,12 +338,16 @@
     <div class="app-wrapper">
 
         <div id="panel-workout" class="view-panel active-panel">
-            <header>
-                <h1 id="workout-day-title">Target Loading...</h1>
-                <p class="subtitle">Tap completed sets. Use +/- to add volume.</p>
+            <header class="header-row">
+                <div>
+                    <h1 id="workout-day-title">Target Loading...</h1>
+                    <p class="subtitle" id="workout-subtitle">Tap completed sets. Use +/- to add volume.</p>
+                </div>
+                <button id="edit-mode-toggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit Split</button>
             </header>
             <nav class="day-tabs" id="routine-tabs"></nav>
             <main id="exercise-cards-container"></main>
+            <div id="add-exercise-form-zone"></div>
         </div>
 
         <div id="panel-calendar" class="view-panel">
@@ -274,6 +373,7 @@
             <div class="system-actions">
                 <button class="util-btn" onclick="exportData()">Export Data Backup</button>
                 <button class="util-btn" onclick="importData()">Import Data Backup</button>
+                <button class="util-btn" style="color: var(--danger);" onclick="resetFactoryRoutine()">Reset Routine Defaults</button>
             </div>
         </div>
 
@@ -286,7 +386,7 @@
     </div>
 
     <script>
-        const baseRoutine = [
+        const factoryRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
                 { name: "Incline Bench Press", sets: 3, reps: "12" },
                 { name: "Bench Press", sets: 3, reps: "12" },
@@ -316,8 +416,11 @@
             ]}
         ];
 
+        // Central State Controllers
+        let baseRoutine = JSON.parse(localStorage.getItem('alpha_routine')) || factoryRoutine;
         let selectedDayId = baseRoutine[0].id;
         let viewDate = new Date(); 
+        let isEditMode = false;
 
         let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
         let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
@@ -331,6 +434,9 @@
         const todayStamp = getLocalDateString();
 
         function switchMainView(targetPanel, navBtn) {
+            // Turn off edit mode automatically on view swap to secure logic tracking
+            if (isEditMode) toggleEditMode();
+
             document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
             document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active-view'));
             
@@ -341,7 +447,70 @@
             if (targetPanel === 'stats') renderStatsView();
         }
 
-        // --- WORKOUT TAB FUNCTIONS ---
+        // --- EDIT MODE PROFILE MANAGER ---
+        window.toggleEditMode = function() {
+            isEditMode = !isEditMode;
+            const toggleBtn = document.getElementById('edit-mode-toggle');
+            const sub = document.getElementById('workout-subtitle');
+
+            if (isEditMode) {
+                toggleBtn.classList.add('mode-on');
+                toggleBtn.textContent = 'Exit Edit';
+                sub.textContent = 'Modifying layout profile settings securely.';
+            } else {
+                toggleBtn.classList.remove('mode-on');
+                toggleBtn.textContent = 'Edit Split';
+                sub.textContent = 'Tap completed sets. Use +/- to add volume.';
+            }
+            renderExerciseCards();
+        }
+
+        window.removeExerciseElement = function(dayId, idx) {
+            const targetDay = baseRoutine.find(d => d.id === dayId);
+            const exName = targetDay.exercises[idx].name;
+            
+            if (confirm(`Remove "${exName}" from your standard ${dayId} line-up?`)) {
+                targetDay.exercises.splice(idx, 1);
+                saveRoutineState();
+                renderExerciseCards();
+            }
+        }
+
+        window.submitNewExercise = function(dayId) {
+            const nameInput = document.getElementById('form-ex-name');
+            const setsInput = document.getElementById('form-ex-sets');
+            const repsInput = document.getElementById('form-ex-reps');
+
+            const name = nameInput.value.trim();
+            const sets = parseInt(setsInput.value);
+            const reps = repsInput.value.trim();
+
+            if (!name || isNaN(sets) || sets < 1 || !reps) {
+                alert("Please fill out all entry configurations cleanly.");
+                return;
+            }
+
+            const targetDay = baseRoutine.find(d => d.id === dayId);
+            targetDay.exercises.push({ name: name, sets: sets, reps: reps });
+            
+            saveRoutineState();
+            renderExerciseCards();
+        }
+
+        function saveRoutineState() {
+            localStorage.setItem('alpha_routine', JSON.stringify(baseRoutine));
+        }
+
+        window.resetFactoryRoutine = function() {
+            if (confirm("Reset layout array configuration back to original spreadsheet parameters? (Your completed workout logs remain untouched).")) {
+                baseRoutine = JSON.parse(JSON.stringify(factoryRoutine));
+                saveRoutineState();
+                if (isEditMode) toggleEditMode();
+                renderExerciseCards();
+            }
+        }
+
+        // --- WORKOUT RENDERING MATRIX ---
         function initWorkoutTab() {
             const tabsContainer = document.getElementById('routine-tabs');
             tabsContainer.innerHTML = baseRoutine.map(day => `
@@ -359,44 +528,86 @@
 
         function renderExerciseCards() {
             const container = document.getElementById('exercise-cards-container');
+            const formZone = document.getElementById('add-exercise-form-zone');
             const dataProfile = baseRoutine.find(d => d.id === selectedDayId);
             document.getElementById('workout-day-title').textContent = dataProfile.title;
 
-            container.innerHTML = dataProfile.exercises.map((ex, idx) => {
-                const scaleKey = `${todayStamp}-${selectedDayId}-${idx}`;
-                const currentSetCount = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : ex.sets;
-                
-                let setBoxesHtml = '';
-                for (let s = 1; s <= currentSetCount; s++) {
-                    const logId = `${todayStamp}-${selectedDayId}-${idx}-S${s}`;
-                    const activeChecked = operationalLog[logId] ? 'active-done' : '';
-                    setBoxesHtml += `
-                        <div class="set-box ${activeChecked}" onclick="toggleSetEngagement('${logId}')">
-                            ${operationalLog[logId] ? '✓' : 'S' + s}
+            if (dataProfile.exercises.length === 0) {
+                container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:40px 0;">No exercises added for this day profile.</p>`;
+            } else {
+                container.innerHTML = dataProfile.exercises.map((ex, idx) => {
+                    const scaleKey = `${todayStamp}-${selectedDayId}-${idx}`;
+                    const currentSetCount = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : ex.sets;
+                    
+                    let setBoxesHtml = '';
+                    for (let s = 1; s <= currentSetCount; s++) {
+                        const logId = `${todayStamp}-${selectedDayId}-${idx}-S${s}`;
+                        const activeChecked = operationalLog[logId] ? 'active-done' : '';
+                        setBoxesHtml += `
+                            <div class="set-box ${activeChecked}" ${isEditMode ? '' : `onclick="toggleSetEngagement('${logId}')"`}>
+                                ${operationalLog[logId] ? '✓' : 'S' + s}
+                            </div>
+                        `;
+                    }
+
+                    // Dynamic switch layout depending on active validation parameters
+                    const actionInterface = isEditMode ? `
+                        <button class="delete-ex-btn" onclick="removeExerciseElement('${selectedDayId}', ${idx})">Remove</button>
+                    ` : `
+                        <div class="set-modifiers">
+                            <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', -1)">-</button>
+                            <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', 1)">+</button>
                         </div>
                     `;
-                }
 
-                return `
-                    <div class="ex-card">
-                        <div class="ex-header">
-                            <div class="ex-title-block">
-                                <span class="ex-name">${ex.name}</span>
-                                <span class="ex-scheme">${currentSetCount} Sets x ${ex.reps} Reps</span>
+                    return `
+                        <div class="ex-card">
+                            <div class="ex-header">
+                                <div class="ex-title-block">
+                                    <span class="ex-name">${ex.name}</span>
+                                    <span class="ex-scheme">${currentSetCount} Sets x ${ex.reps} Reps ${currentSetCount !== ex.sets ? `(Base: ${ex.sets}s)` : ''}</span>
+                                </div>
+                                ${actionInterface}
                             </div>
-                            <div class="set-modifiers">
-                                <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', -1)">-</button>
-                                <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', 1)">+</button>
+                            <div class="sets-grid" style="${isEditMode ? 'opacity:0.25; pointer-events:none;' : ''}">${setBoxesHtml}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Render Add Exercise Context Block
+            if (isEditMode) {
+                formZone.innerHTML = `
+                    <div class="add-ex-form">
+                        <div class="form-title">Add New Exercise</div>
+                        <div class="form-group">
+                            <label>Exercise Name</label>
+                            <input type="text" id="form-ex-name" class="form-input" placeholder="e.g., Incline Dumbbell Flyes" autocomplete="off">
+                        </div>
+                        <div class="form-row-split">
+                            <div class="form-group">
+                                <label>Default Sets</label>
+                                <input type="number" id="form-ex-sets" class="form-input" value="3" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Target Reps Format</label>
+                                <input type="text" id="form-ex-reps" class="form-input" value="12" placeholder="e.g., 10-12 or 15">
                             </div>
                         </div>
-                        <div class="sets-grid">${setBoxesHtml}</div>
+                        <button class="save-ex-btn" onclick="submitNewExercise('${selectedDayId}')">Save To ${selectedDayId}</button>
                     </div>
                 `;
-            }).join('');
+            } else {
+                formZone.innerHTML = '';
+            }
         }
 
         window.scaleSetVolume = function(scaleKey, change) {
-            const defaultSets = baseRoutine.find(d => d.id === selectedDayId).exercises[scaleKey.split('-').pop()].sets;
+            const exIdx = scaleKey.split('-').pop();
+            const dayTarget = baseRoutine.find(d => d.id === selectedDayId);
+            if (!dayTarget.exercises[exIdx]) return; // Boundary validation fail protection
+            
+            const defaultSets = dayTarget.exercises[exIdx].sets;
             let current = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : defaultSets;
             current = Math.max(0, current + change);
             dynamicScales[scaleKey] = current;
@@ -457,7 +668,7 @@
             targetGrid.innerHTML = gridHtml;
         }
 
-        // --- Restructured Date & Analytics Processing Engine ---
+        // --- ANALYTICS TAB PROCESSING ---
         function getOrdinalSuffix(day) {
             if (day > 3 && day < 21) return 'th';
             switch (day % 10) {
@@ -482,7 +693,6 @@
             const listTarget = document.getElementById('analytics-target-list');
             let groupedByDate = {};
 
-            // Parse keys into structured groupings
             Object.keys(operationalLog).forEach(logId => {
                 const entry = operationalLog[logId];
                 if (!entry || !entry.exerciseName) return;
@@ -527,7 +737,7 @@
 
         // --- BACKUP UTILITIES ---
         window.exportData = function() {
-            const dataPkg = { log: operationalLog, scales: dynamicScales };
+            const dataPkg = { log: operationalLog, scales: dynamicScales, routine: baseRoutine };
             const encryptedStr = btoa(JSON.stringify(dataPkg));
             navigator.clipboard.writeText(encryptedStr);
             alert("Secure backup data code copied directly to your clipboard! Paste and save it safely anywhere.");
@@ -541,9 +751,13 @@
                 if (parsed.log && parsed.scales) {
                     operationalLog = parsed.log;
                     dynamicScales = parsed.scales;
+                    if (parsed.routine) baseRoutine = parsed.routine;
+                    
                     localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
                     localStorage.setItem('alpha_scales', JSON.stringify(dynamicScales));
-                    alert("Import successful! Data state synchronized.");
+                    saveRoutineState();
+                    
+                    alert("Import successful! Complete system state synchronized.");
                     renderExerciseCards();
                 } else { alert("Invalid backup profile layout structural schema."); }
             } catch(e) { alert("Data verification processing error."); }
