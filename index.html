@@ -396,7 +396,7 @@
             <div id="analytics-target-list"></div>
             
             <div class="system-actions">
-                <button id="pwa-install-btn" class="util-btn install-highlight" style="display: none;" onclick="triggerPwaInstallation()">Install App to Device</button>
+                <button id="pwa-install-btn" class="util-btn install-highlight" onclick="triggerPwaInstallation()">Install App to Device</button>
                 
                 <button class="util-btn" onclick="exportData()">Export Data Backup</button>
                 <button class="util-btn" onclick="importData()">Import Data Backup</button>
@@ -420,33 +420,27 @@
             });
         }
 
-        // Intercept and trap the automatic install prompt
+        // Intercept the browser's install event
         let stashedPwaEvent = null;
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); // Stop the automatic bottom banner from popping up
-            stashedPwaEvent = e; // Hold onto the event configuration data
-            
-            // Gracefully reveal our minimal target button in the analytics zone
-            const installBtn = document.getElementById('pwa-install-btn');
-            if (installBtn) installBtn.style.display = 'inline-block';
+            e.preventDefault(); 
+            stashedPwaEvent = e; 
         });
 
+        // Trigger manual installation process
         window.triggerPwaInstallation = async function() {
-            if (!stashedPwaEvent) return;
-            
-            stashedPwaEvent.prompt(); // Open the official safe install window explicitly on user request
-            const { outcome } = await stashedPwaEvent.userChoice;
-            
-            if (outcome === 'accepted') {
-                document.getElementById('pwa-install-btn').style.display = 'none';
+            if (confirm("Do you want to install this tracker to your device's home screen?")) {
+                if (stashedPwaEvent) {
+                    // Browser is ready, trigger the native pop-up
+                    stashedPwaEvent.prompt(); 
+                    const { outcome } = await stashedPwaEvent.userChoice;
+                    // We don't nullify or hide it anymore so it's always accessible
+                } else {
+                    // Browser isn't ready or it's already installed
+                    alert("Direct installation isn't available right now.\n\nThis usually means:\n1. The app is already installed on your device.\n2. You are using an in-app browser (like a chat app link). Please open the link in regular Google Chrome.\n3. You may need to tap the three-dot menu in your browser and manually select 'Add to Home screen'.");
+                }
             }
-            stashedPwaEvent = null;
         };
-
-        window.addEventListener('appinstalled', () => {
-            document.getElementById('pwa-install-btn').style.display = 'none';
-            stashedPwaEvent = null;
-        });
 
         const factoryRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
