@@ -192,6 +192,12 @@
             font-weight: bold;
             border-radius: 6px;
             cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .delete-ex-btn:hover {
+            background: var(--danger);
+            color: #000;
         }
 
         .add-ex-form {
@@ -310,8 +316,6 @@
             font-size: 0.8rem;
             font-weight: 700;
             color: var(--accent);
-            margin-bottom: 10px;
-            margin-top: 20px;
             text-transform: uppercase;
             letter-spacing: 0.05em;
         }
@@ -534,14 +538,13 @@
             initWorkoutTab();
         }
 
-        // Helper to compute target dates relative to the active rolling calendar week
         function getWeekdayTargetDateString(dayId) {
             const indicesMap = { "Mon": 1, "Tue": 2, "Thu": 4, "Sat": 6 };
             const targetIndex = indicesMap[dayId];
             if (targetIndex === undefined) return "";
 
             const currentObj = new Date();
-            const systemDayIdx = currentObj.getDay(); // 0 = Sun, 1 = Mon...
+            const systemDayIdx = currentObj.getDay(); 
             const offsetDiff = targetIndex - systemDayIdx;
 
             const computedTarget = new Date(currentObj);
@@ -716,6 +719,33 @@
             return `${weekday}, ${monthName} ${day}${getOrdinalSuffix(day)}`;
         }
 
+        // --- HISTORICAL ENTRY MANIPULATION ENGINES ---
+        window.removeEntireDayLog = function(dateStr) {
+            const formatted = formatLogDate(dateStr);
+            if (confirm(`Are you sure you want to permanently delete ALL workout data logged on ${formatted}? This action cannot be undone.`)) {
+                Object.keys(operationalLog).forEach(key => {
+                    if (key.startsWith(dateStr)) {
+                        delete operationalLog[key];
+                    }
+                });
+                localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
+                renderStatsView();
+            }
+        }
+
+        window.removeSpecificExerciseLog = function(dateStr, exName) {
+            const formatted = formatLogDate(dateStr);
+            if (confirm(`Are you sure you want to delete all historical sets logged for "${exName}" on ${formatted}?`)) {
+                Object.keys(operationalLog).forEach(key => {
+                    if (key.startsWith(dateStr) && operationalLog[key].exerciseName === exName) {
+                        delete operationalLog[key];
+                    }
+                });
+                localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
+                renderStatsView();
+            }
+        }
+
         function renderStatsView() {
             const listTarget = document.getElementById('analytics-target-list');
             let groupedByDate = {};
@@ -746,16 +776,32 @@
                 const formattedDate = formatLogDate(dateStr);
                 const exercises = groupedByDate[dateStr];
                 
-                const exercisesHtml = Object.entries(exercises).map(([name, sets]) => `
-                    <div class="stat-row" style="margin-bottom: 6px; background: #19191c;">
-                        <span style="font-weight:500; font-size:0.9rem;">${name}</span>
-                        <span class="stat-count">${sets} Completed ${sets === 1 ? 'Set' : 'Sets'}</span>
-                    </div>
-                `).join('');
+                const exercisesHtml = Object.entries(exercises).map(([name, sets]) => {
+                    // Safe string escaping for inline script arguments
+                    const escapedName = name.replace(/'/g, "\\'");
+                    return `
+                        <div class="stat-row" style="margin-bottom: 6px; background: #19191c; justify-content: space-between;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-weight:500; font-size:0.9rem; color:var(--text-title);">${name}</span>
+                                <span class="stat-count" style="font-size:0.8rem; color:var(--accent);">${sets} ${sets === 1 ? 'Set' : 'Sets'} Mapped</span>
+                            </div>
+                            <button class="delete-ex-btn" style="padding: 4px 8px; font-size: 0.7rem;" 
+                                    onclick="removeSpecificExerciseLog('${dateStr}', '${escapedName}')">
+                                Remove
+                            </button>
+                        </div>
+                    `;
+                }).join('');
 
                 return `
-                    <div style="margin-bottom: 20px;">
-                        <div class="date-group-title">${formattedDate}</div>
+                    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <div class="date-group-title" style="margin: 0;">${formattedDate}</div>
+                            <button class="delete-ex-btn" style="background: transparent; border: 1px solid var(--danger); padding: 4px 8px; font-size: 0.7rem;" 
+                                    onclick="removeEntireDayLog('${dateStr}')">
+                                Delete Day
+                            </button>
+                        </div>
                         ${exercisesHtml}
                     </div>
                 `;
