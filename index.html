@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aesthetic Performance Matrix</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#09090b">
+    
     <style>
         :root {
             --bg-main: #09090b;
@@ -344,15 +348,13 @@
             cursor: pointer;
             margin: 4px;
         }
-        <link rel="manifest" href="manifest.json">
-        <meta name="theme-color" content="#09090b">
-        <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
+        
+        .util-btn.install-highlight {
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: bold;
+            background: rgba(6, 182, 212, 0.05);
         }
-    </script>
     </style>
 </head>
 <body>
@@ -394,6 +396,8 @@
             <div id="analytics-target-list"></div>
             
             <div class="system-actions">
+                <button id="pwa-install-btn" class="util-btn install-highlight" style="display: none;" onclick="triggerPwaInstallation()">Install App to Device</button>
+                
                 <button class="util-btn" onclick="exportData()">Export Data Backup</button>
                 <button class="util-btn" onclick="importData()">Import Data Backup</button>
                 <button class="util-btn" style="color: var(--danger);" onclick="resetFactoryRoutine()">Reset Routine Defaults</button>
@@ -409,6 +413,41 @@
     </div>
 
     <script>
+        // Native background service worker registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js');
+            });
+        }
+
+        // Intercept and trap the automatic install prompt
+        let stashedPwaEvent = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); // Stop the automatic bottom banner from popping up
+            stashedPwaEvent = e; // Hold onto the event configuration data
+            
+            // Gracefully reveal our minimal target button in the analytics zone
+            const installBtn = document.getElementById('pwa-install-btn');
+            if (installBtn) installBtn.style.display = 'inline-block';
+        });
+
+        window.triggerPwaInstallation = async function() {
+            if (!stashedPwaEvent) return;
+            
+            stashedPwaEvent.prompt(); // Open the official safe install window explicitly on user request
+            const { outcome } = await stashedPwaEvent.userChoice;
+            
+            if (outcome === 'accepted') {
+                document.getElementById('pwa-install-btn').style.display = 'none';
+            }
+            stashedPwaEvent = null;
+        };
+
+        window.addEventListener('appinstalled', () => {
+            document.getElementById('pwa-install-btn').style.display = 'none';
+            stashedPwaEvent = null;
+        });
+
         const factoryRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
                 { name: "Incline Bench Press", sets: 3, reps: "12" },
@@ -728,7 +767,6 @@
             return `${weekday}, ${monthName} ${day}${getOrdinalSuffix(day)}`;
         }
 
-        // --- HISTORICAL ENTRY MANIPULATION ENGINES ---
         window.removeEntireDayLog = function(dateStr) {
             const formatted = formatLogDate(dateStr);
             if (confirm(`Are you sure you want to permanently delete ALL workout data logged on ${formatted}? This action cannot be undone.`)) {
@@ -786,7 +824,6 @@
                 const exercises = groupedByDate[dateStr];
                 
                 const exercisesHtml = Object.entries(exercises).map(([name, sets]) => {
-                    // Safe string escaping for inline script arguments
                     const escapedName = name.replace(/'/g, "\\'");
                     return `
                         <div class="stat-row" style="margin-bottom: 6px; background: #19191c; justify-content: space-between;">
