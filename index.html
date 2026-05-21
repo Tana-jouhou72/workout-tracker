@@ -420,27 +420,74 @@
             });
         }
 
-        // Intercept the browser's install event
+        // --- NEW PWA INSTALLATION LOGIC ---
         let stashedPwaEvent = null;
+
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault(); 
-            stashedPwaEvent = e; 
+            e.preventDefault();
+            stashedPwaEvent = e;
+            // Highlight the button once we know install is definitely available
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) {
+                btn.textContent = '⬇ Install App to Device';
+                btn.style.background = 'rgba(6,182,212,0.15)';
+            }
         });
 
-        // Trigger manual installation process
+        window.addEventListener('appinstalled', () => {
+            stashedPwaEvent = null;
+            const btn = document.getElementById('pwa-install-btn');
+            if (btn) btn.textContent = '✓ App Installed';
+        });
+
         window.triggerPwaInstallation = async function() {
-            if (confirm("Do you want to install this tracker to your device's home screen?")) {
-                if (stashedPwaEvent) {
-                    // Browser is ready, trigger the native pop-up
-                    stashedPwaEvent.prompt(); 
-                    const { outcome } = await stashedPwaEvent.userChoice;
-                    // We don't nullify or hide it anymore so it's always accessible
+            // Check if already running as standalone app
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                alert("This app is already installed on your device.");
+                return;
+            }
+            
+            if (stashedPwaEvent) {
+                // Native prompt is ready — trigger it!
+                stashedPwaEvent.prompt();
+                const { outcome } = await stashedPwaEvent.userChoice;
+                if (outcome === 'accepted') {
+                    stashedPwaEvent = null;
+                }
+            } else {
+                // Fallback instructions specific to the user's device
+                const isAndroid = /Android/i.test(navigator.userAgent);
+                const isChrome = /Chrome/i.test(navigator.userAgent) && !/Edg|OPR/i.test(navigator.userAgent);
+                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                
+                if (isAndroid && isChrome) {
+                    alert(
+                        "To install on your Pixel:\n\n" +
+                        "1. Tap the three-dot menu (⋮) in the top-right of Chrome\n" +
+                        "2. Tap 'Add to Home screen'\n" +
+                        "3. Tap 'Add'\n\n" +
+                        "Note: If you opened this link inside another app (e.g. a chat), " +
+                        "copy the URL and open it directly in Chrome first."
+                    );
+                } else if (isIOS) {
+                    alert(
+                        "To install on iPhone/iPad:\n\n" +
+                        "1. Tap the Share button (□↑) at the bottom of Safari\n" +
+                        "2. Scroll down and tap 'Add to Home Screen'\n" +
+                        "3. Tap 'Add'"
+                    );
                 } else {
-                    // Browser isn't ready or it's already installed
-                    alert("Direct installation isn't available right now.\n\nThis usually means:\n1. The app is already installed on your device.\n2. You are using an in-app browser (like a chat app link). Please open the link in regular Google Chrome.\n3. You may need to tap the three-dot menu in your browser and manually select 'Add to Home screen'.");
+                    alert(
+                        "Installation prompt not ready yet.\n\n" +
+                        "This usually means:\n" +
+                        "• The app is already installed\n" +
+                        "• Try refreshing the page and waiting a moment\n" +
+                        "• Or use the browser menu → 'Install app' / 'Add to Home screen'"
+                    );
                 }
             }
         };
+        // --- END NEW PWA INSTALLATION LOGIC ---
 
         const factoryRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
