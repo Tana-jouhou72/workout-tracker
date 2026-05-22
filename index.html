@@ -323,6 +323,18 @@
             ]}
         ];
 
+        // --- NEW CRASH-PROOF LOAD ENGINE ---
+        function safeLoad(key, fallback) {
+            try {
+                let data = localStorage.getItem(key);
+                if (data) return JSON.parse(data);
+            } catch(e) {
+                console.error("Storage corrupted for", key);
+                localStorage.removeItem(key); // Wipe bad data immediately
+            }
+            return fallback;
+        }
+
         // System Date Utilities
         function getLocalDateString(date = new Date()) {
             const offset = date.getTimezoneOffset();
@@ -331,24 +343,27 @@
         }
         const todayStamp = getLocalDateString();
 
-        // State Engines
-        let baseRoutine = JSON.parse(localStorage.getItem('alpha_routine')) || factoryRoutine;
-        let selectedDayId = baseRoutine[0].id;
-        let viewDate = new Date(); 
-        let isEditMode = false;
-        let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
-        let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
+        // Safe Initialization
+        let baseRoutine = safeLoad('alpha_routine', factoryRoutine);
+        if (!Array.isArray(baseRoutine) || baseRoutine.length === 0) baseRoutine = factoryRoutine;
         
-        // --- NEW TIMER ENGINES ---
-        let durationLog = JSON.parse(localStorage.getItem('alpha_durations')) || {};
-        let sessionState = JSON.parse(localStorage.getItem('alpha_session')) || { date: todayStamp, isRunning: false, start: null, elapsed: 0 };
-        let lastRestStart = null;
+        let dynamicScales = safeLoad('alpha_scales', {});
+        let operationalLog = safeLoad('alpha_log', {});
+        let durationLog = safeLoad('alpha_durations', {});
+        
+        let defaultSession = { date: todayStamp, isRunning: false, start: null, elapsed: 0 };
+        let sessionState = safeLoad('alpha_session', defaultSession);
 
-        // Reset session logic if it's a completely new day
-        if (sessionState.date !== todayStamp) {
-            sessionState = { date: todayStamp, isRunning: false, start: null, elapsed: 0 };
+        if (!sessionState || typeof sessionState !== 'object' || sessionState.date !== todayStamp) {
+            sessionState = defaultSession;
             localStorage.setItem('alpha_session', JSON.stringify(sessionState));
         }
+
+        let selectedDayId = baseRoutine[0] ? baseRoutine[0].id : "Mon";
+        let viewDate = new Date(); 
+        let isEditMode = false;
+        let lastRestStart = null;
+        // --- END CRASH-PROOF LOAD ENGINE ---
 
         function formatTime(ms) {
             if(!ms || ms < 0) return "00:00";
@@ -408,16 +423,4 @@
         window.toggleWorkoutTimer = function() {
             if(sessionState.isRunning) {
                 sessionState.elapsed += Date.now() - sessionState.start;
-                sessionState.isRunning = false;
-            } else {
-                sessionState.start = Date.now();
-                sessionState.isRunning = true;
-            }
-            saveSession();
-            renderTimerDashboard();
-        }
-
-        window.finishWorkout = function() {
-            if(confirm("Finish this workout and log your total duration?")) {
-                if(sessionState.isRunning) {
-                    sessionState.elapsed += Date.now() -
+                sessionState.isRunning 
