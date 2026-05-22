@@ -67,9 +67,7 @@
             letter-spacing: 0.05em;
         }
 
-        .nav-link.active-view {
-            color: var(--accent);
-        }
+        .nav-link.active-view { color: var(--accent); }
 
         /* View Panels */
         .view-panel { display: none; }
@@ -88,6 +86,54 @@
         }
 
         .subtitle { font-size: 0.8rem; color: var(--text-muted); margin: 4px 0 0 0; }
+
+        /* Timer Module Custom UI */
+        .timer-dashboard {
+            background: #111113;
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 16px;
+            text-align: center;
+            box-shadow: inset 0 0 16px rgba(0,0,0,0.4);
+        }
+        .main-timer { 
+            font-size: 2.4rem; 
+            font-weight: 800; 
+            color: var(--text-title); 
+            font-variant-numeric: tabular-nums; 
+            margin: 4px 0;
+            letter-spacing: 0.02em;
+        }
+        .rest-timer { 
+            font-size: 0.9rem; 
+            color: var(--success); 
+            margin-top: 14px; 
+            font-variant-numeric: tabular-nums;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .timer-controls { 
+            display: flex; 
+            gap: 12px; 
+            justify-content: center; 
+        }
+        .btn-timer { 
+            padding: 10px 24px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            border: none; 
+            cursor: pointer; 
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: transform 0.1s ease;
+        }
+        .btn-timer:active { transform: scale(0.95); }
+        .btn-start { background: var(--success); color: #000; }
+        .btn-pause { background: #f59e0b; color: #000; }
+        .btn-stop { background: transparent; color: var(--danger); border: 1px solid var(--danger); }
 
         /* Workout View Tabs */
         .day-tabs {
@@ -123,244 +169,69 @@
             position: relative;
         }
 
-        .ex-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-        }
-
+        .ex-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
         .ex-title-block { display: flex; flex-direction: column; }
         .ex-name { font-size: 0.95rem; font-weight: 600; color: var(--text-title); }
         .ex-scheme { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
         .set-modifiers { display: flex; gap: 6px; }
         .mod-btn {
-            background: #27272a;
-            border: none;
-            color: var(--text-body);
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
+            background: #27272a; border: none; color: var(--text-body);
+            width: 28px; height: 28px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.9rem;
         }
 
         .sets-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .set-box {
-            width: 42px;
-            height: 42px;
-            background: #18181b;
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            user-select: none;
+            width: 42px; height: 42px; background: #18181b; border: 1px solid var(--card-border);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted); cursor: pointer; user-select: none;
         }
 
-        .set-box.active-done {
-            background: var(--success-glow);
-            border-color: var(--success);
-            color: var(--success);
-        }
+        .set-box.active-done { background: var(--success-glow); border-color: var(--success); color: var(--success); }
 
         /* Editing Panel Additions */
         .edit-toggle-btn {
-            background: #18181b;
-            border: 1px solid var(--card-border);
-            color: var(--text-body);
-            padding: 6px 10px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
+            background: #18181b; border: 1px solid var(--card-border); color: var(--text-body);
+            padding: 6px 10px; font-size: 0.75rem; font-weight: bold; border-radius: 6px; cursor: pointer;
         }
-        .edit-toggle-btn.mode-on {
-            background: rgba(6, 182, 212, 0.1);
-            border-color: var(--accent);
-            color: var(--accent);
-        }
-
+        .edit-toggle-btn.mode-on { background: rgba(6, 182, 212, 0.1); border-color: var(--accent); color: var(--accent); }
         .delete-ex-btn {
-            background: var(--danger-glow);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            background: var(--danger-glow); border: 1px solid var(--danger); color: var(--danger);
+            padding: 6px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 6px; cursor: pointer;
         }
-
-        .delete-ex-btn:hover {
-            background: var(--danger);
-            color: #000;
-        }
-
         .add-ex-form {
-            background: #111113;
-            border: 1px dashed var(--card-border);
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            background: #111113; border: 1px dashed var(--card-border); border-radius: 14px;
+            padding: 16px; margin-top: 16px; display: flex; flex-direction: column; gap: 12px;
         }
+        .form-title { font-size: 0.85rem; font-weight: bold; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        .form-input { background: #18181b; border: 1px solid var(--card-border); color: var(--text-title); padding: 10px; border-radius: 8px; font-size: 0.9rem; }
+        .form-row-split { display: flex; gap: 12px; }
+        .form-row-split .form-group { flex: 1; }
+        .save-ex-btn { background: var(--accent); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; text-transform: uppercase; margin-top: 4px; }
 
-        .form-title {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .form-group label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        .form-input {
-            background: #18181b;
-            border: 1px solid var(--card-border);
-            color: var(--text-title);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .form-row-split {
-            display: flex;
-            gap: 12px;
-        }
-
-        .form-row-split .form-group {
-            flex: 1;
-        }
-
-        .save-ex-btn {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-top: 4px;
-        }
-
-        /* Calendar View Matrix Layout */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 12px;
-            border-radius: 14px;
-        }
-
-        .weekday-label {
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            padding-bottom: 6px;
-        }
-
-        .cal-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 8px;
-            background: #18181b;
-            color: var(--text-muted);
-            border: 1px solid transparent;
-        }
-
+        /* Calendar View Layout */
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 14px; }
+        .weekday-label { text-align: center; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); padding-bottom: 6px; }
+        .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 600; border-radius: 8px; background: #18181b; color: var(--text-muted); border: 1px solid transparent; }
         .cal-day.empty { background: transparent; border: none; }
-        .cal-day.has-workout {
-            background: var(--success-glow);
-            color: var(--success);
-            border-color: rgba(16, 185, 129, 0.3);
-            font-weight: 700;
-        }
+        .cal-day.has-workout { background: var(--success-glow); color: var(--success); border-color: rgba(16, 185, 129, 0.3); font-weight: 700; }
         .cal-day.is-today-highlight { border: 1px solid var(--accent); color: var(--text-title); }
 
-        /* Analytics Date-Grouped Blocks */
-        .date-group-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-row {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
+        /* Analytics Blocks */
+        .date-group-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-row { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 16px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .stat-count { font-weight: 700; color: var(--success); font-size: 0.9rem; }
-
         .system-actions { margin-top: 32px; text-align: center; }
-        .util-btn {
-            background: transparent;
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            font-size: 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            margin: 4px;
-        }
-        
-        .util-btn.install-highlight {
-            border-color: var(--accent);
-            color: var(--accent);
-            font-weight: bold;
-            background: rgba(6, 182, 212, 0.05);
-        }
+        .util-btn { background: transparent; border: 1px solid var(--card-border); color: var(--text-muted); padding: 8px 14px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; margin: 4px; }
+        .util-btn.install-highlight { border-color: var(--accent); color: var(--accent); font-weight: bold; background: rgba(6, 182, 212, 0.05); }
     </style>
 </head>
 <body>
 
     <div class="app-wrapper">
-
         <div id="panel-workout" class="view-panel active-panel">
             <header class="header-row">
                 <div>
@@ -371,6 +242,8 @@
                 <button id="edit-mode-toggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit Split</button>
             </header>
             <nav class="day-tabs" id="routine-tabs"></nav>
+            
+            <div id="timer-dashboard-zone"></div>
             <main id="exercise-cards-container"></main>
             <div id="add-exercise-form-zone"></div>
         </div>
@@ -397,7 +270,6 @@
             
             <div class="system-actions">
                 <button id="pwa-install-btn" class="util-btn install-highlight" onclick="triggerPwaInstallation()">Install App to Device</button>
-                
                 <button class="util-btn" onclick="exportData()">Export Data Backup</button>
                 <button class="util-btn" onclick="importData()">Import Data Backup</button>
                 <button class="util-btn" style="color: var(--danger);" onclick="resetFactoryRoutine()">Reset Routine Defaults</button>
@@ -409,527 +281,143 @@
             <button class="nav-link" onclick="switchMainView('calendar', this)">Calendar</button>
             <button class="nav-link" onclick="switchMainView('stats', this)">Analytics</button>
         </nav>
-
     </div>
 
     <script>
-        // Native background service worker registration
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js');
-            });
-        }
-
-        // --- NEW PWA INSTALLATION LOGIC ---
+        // PWA Scripts
+        if ('serviceWorker' in navigator) { window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js'); }); }
         let stashedPwaEvent = null;
-
         window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            stashedPwaEvent = e;
-            // Highlight the button once we know install is definitely available
+            e.preventDefault(); stashedPwaEvent = e;
             const btn = document.getElementById('pwa-install-btn');
-            if (btn) {
-                btn.textContent = '⬇ Install App to Device';
-                btn.style.background = 'rgba(6,182,212,0.15)';
-            }
+            if (btn) { btn.textContent = '⬇ Install App to Device'; btn.style.background = 'rgba(6,182,212,0.15)'; }
         });
-
         window.addEventListener('appinstalled', () => {
             stashedPwaEvent = null;
             const btn = document.getElementById('pwa-install-btn');
             if (btn) btn.textContent = '✓ App Installed';
         });
-
         window.triggerPwaInstallation = async function() {
-            // Check if already running as standalone app
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                alert("This app is already installed on your device.");
-                return;
-            }
-            
+            if (window.matchMedia('(display-mode: standalone)').matches) { alert("This app is already installed on your device."); return; }
             if (stashedPwaEvent) {
-                // Native prompt is ready — trigger it!
                 stashedPwaEvent.prompt();
                 const { outcome } = await stashedPwaEvent.userChoice;
-                if (outcome === 'accepted') {
-                    stashedPwaEvent = null;
-                }
+                if (outcome === 'accepted') stashedPwaEvent = null;
             } else {
-                // Fallback instructions specific to the user's device
-                const isAndroid = /Android/i.test(navigator.userAgent);
-                const isChrome = /Chrome/i.test(navigator.userAgent) && !/Edg|OPR/i.test(navigator.userAgent);
-                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-                
-                if (isAndroid && isChrome) {
-                    alert(
-                        "To install on your Pixel:\n\n" +
-                        "1. Tap the three-dot menu (⋮) in the top-right of Chrome\n" +
-                        "2. Tap 'Add to Home screen'\n" +
-                        "3. Tap 'Add'\n\n" +
-                        "Note: If you opened this link inside another app (e.g. a chat), " +
-                        "copy the URL and open it directly in Chrome first."
-                    );
-                } else if (isIOS) {
-                    alert(
-                        "To install on iPhone/iPad:\n\n" +
-                        "1. Tap the Share button (□↑) at the bottom of Safari\n" +
-                        "2. Scroll down and tap 'Add to Home Screen'\n" +
-                        "3. Tap 'Add'"
-                    );
-                } else {
-                    alert(
-                        "Installation prompt not ready yet.\n\n" +
-                        "This usually means:\n" +
-                        "• The app is already installed\n" +
-                        "• Try refreshing the page and waiting a moment\n" +
-                        "• Or use the browser menu → 'Install app' / 'Add to Home screen'"
-                    );
-                }
+                alert("Installation prompt not ready yet.\n\nThis usually means:\n• The app is already installed\n• Try refreshing the page and waiting a moment\n• Or use the browser menu → 'Install app' / 'Add to Home screen'");
             }
         };
-        // --- END NEW PWA INSTALLATION LOGIC ---
 
         const factoryRoutine = [
             { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
-                { name: "Incline Bench Press", sets: 3, reps: "12" },
-                { name: "Bench Press", sets: 3, reps: "12" },
-                { name: "Dumbbell Overhead Press", sets: 3, reps: "12" },
-                { name: "Lateral Raise", sets: 4, reps: "15" },
-                { name: "Tricep Rope Pushdown", sets: 3, reps: "12" }
+                { name: "Incline Bench Press", sets: 3, reps: "12" }, { name: "Bench Press", sets: 3, reps: "12" }, { name: "Dumbbell Overhead Press", sets: 3, reps: "12" }, { name: "Lateral Raise", sets: 4, reps: "15" }, { name: "Tricep Rope Pushdown", sets: 3, reps: "12" }
             ]},
             { id: "Tue", label: "TUE", title: "Tuesday // Lat Width & Abs", exercises: [
-                { name: "Lat Pulldown", sets: 4, reps: "12" },
-                { name: "Seated Cable Row", sets: 3, reps: "12" },
-                { name: "Facepull", sets: 3, reps: "15" },
-                { name: "Bicep Curl", sets: 3, reps: "12" },
-                { name: "Hanging Leg Raise", sets: 3, reps: "10" }
+                { name: "Lat Pulldown", sets: 4, reps: "12" }, { name: "Seated Cable Row", sets: 3, reps: "12" }, { name: "Facepull", sets: 3, reps: "15" }, { name: "Bicep Curl", sets: 3, reps: "12" }, { name: "Hanging Leg Raise", sets: 3, reps: "10" }
             ]},
             { id: "Thu", label: "THU", title: "Thursday // Shoulder Width Engine", exercises: [
-                { name: "Machine Shoulder Press", sets: 3, reps: "12" },
-                { name: "Lateral Raise", sets: 4, reps: "15" },
-                { name: "Rear Delt Fly", sets: 3, reps: "12" },
-                { name: "Bicep Curl", sets: 3, reps: "12" },
-                { name: "Dumbbell Overhead Extension", sets: 3, reps: "10" }
+                { name: "Machine Shoulder Press", sets: 3, reps: "12" }, { name: "Lateral Raise", sets: 4, reps: "15" }, { name: "Rear Delt Fly", sets: 3, reps: "12" }, { name: "Bicep Curl", sets: 3, reps: "12" }, { name: "Dumbbell Overhead Extension", sets: 3, reps: "10" }
             ]},
             { id: "Sat", label: "SAT", title: "Saturday // Density Hypertrophy", exercises: [
-                { name: "Incline Bench Press", sets: 3, reps: "12" },
-                { name: "Lat Pulldown", sets: 3, reps: "12" },
-                { name: "Cable Lateral Raise", sets: 3, reps: "12" },
-                { name: "Hammer Curl", sets: 3, reps: "12" }
+                { name: "Incline Bench Press", sets: 3, reps: "12" }, { name: "Lat Pulldown", sets: 3, reps: "12" }, { name: "Cable Lateral Raise", sets: 3, reps: "12" }, { name: "Hammer Curl", sets: 3, reps: "12" }
             ]}
         ];
 
-        let baseRoutine = JSON.parse(localStorage.getItem('alpha_routine')) || factoryRoutine;
-        let selectedDayId = baseRoutine[0].id;
-        let viewDate = new Date(); 
-        let isEditMode = false;
-
-        let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
-        let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
-
+        // System Date Utilities
         function getLocalDateString(date = new Date()) {
             const offset = date.getTimezoneOffset();
             const adjustedDate = new Date(date.getTime() - (offset * 60 * 1000));
             return adjustedDate.toISOString().split('T')[0];
         }
-
         const todayStamp = getLocalDateString();
 
-        function switchMainView(targetPanel, navBtn) {
-            if (isEditMode) toggleEditMode();
+        // State Engines
+        let baseRoutine = JSON.parse(localStorage.getItem('alpha_routine')) || factoryRoutine;
+        let selectedDayId = baseRoutine[0].id;
+        let viewDate = new Date(); 
+        let isEditMode = false;
+        let dynamicScales = JSON.parse(localStorage.getItem('alpha_scales')) || {};
+        let operationalLog = JSON.parse(localStorage.getItem('alpha_log')) || {};
+        
+        // --- NEW TIMER ENGINES ---
+        let durationLog = JSON.parse(localStorage.getItem('alpha_durations')) || {};
+        let sessionState = JSON.parse(localStorage.getItem('alpha_session')) || { date: todayStamp, isRunning: false, start: null, elapsed: 0 };
+        let lastRestStart = null;
 
-            document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
-            document.querySelectorAll('.nav-link').forEach(b => b.classList.remove('active-view'));
-            
-            document.getElementById(`panel-${targetPanel}`).classList.add('active-panel');
-            navBtn.classList.add('active-view');
-
-            if (targetPanel === 'calendar') renderCalendarView();
-            if (targetPanel === 'stats') renderStatsView();
+        // Reset session logic if it's a completely new day
+        if (sessionState.date !== todayStamp) {
+            sessionState = { date: todayStamp, isRunning: false, start: null, elapsed: 0 };
+            localStorage.setItem('alpha_session', JSON.stringify(sessionState));
         }
 
-        // --- EDIT MODE PROFILE MANAGER ---
-        window.toggleEditMode = function() {
-            isEditMode = !isEditMode;
-            const toggleBtn = document.getElementById('edit-mode-toggle');
-            const sub = document.getElementById('workout-subtitle');
+        function formatTime(ms) {
+            if(!ms || ms < 0) return "00:00";
+            let totalSec = Math.floor(ms / 1000);
+            let h = Math.floor(totalSec / 3600);
+            let m = Math.floor((totalSec % 3600) / 60);
+            let s = totalSec % 60;
+            let pad = (num) => num.toString().padStart(2, '0');
+            return h > 0 ? `${pad(h)}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`;
+        }
 
-            if (isEditMode) {
-                toggleBtn.classList.add('mode-on');
-                toggleBtn.textContent = 'Exit Edit';
-                sub.textContent = 'Modifying layout profile settings securely.';
-            } else {
-                toggleBtn.classList.remove('mode-on');
-                toggleBtn.textContent = 'Edit Split';
-                sub.textContent = 'Tap completed sets. Use +/- to add volume.';
+        function saveSession() {
+            localStorage.setItem('alpha_session', JSON.stringify(sessionState));
+        }
+
+        function tick() {
+            const wTimer = document.getElementById('ui-workout-timer');
+            const rTimer = document.getElementById('ui-rest-timer');
+            
+            if (wTimer) {
+                let wTime = sessionState.elapsed;
+                if (sessionState.isRunning) wTime += (Date.now() - sessionState.start);
+                wTimer.textContent = formatTime(wTime);
             }
-            renderExerciseCards();
-        }
-
-        window.removeExerciseElement = function(dayId, idx) {
-            const targetDay = baseRoutine.find(d => d.id === dayId);
-            const exName = targetDay.exercises[idx].name;
-            
-            if (confirm(`Remove "${exName}" from your standard ${dayId} line-up?`)) {
-                targetDay.exercises.splice(idx, 1);
-                saveRoutineState();
-                renderExerciseCards();
-            }
-        }
-
-        window.submitNewExercise = function(dayId) {
-            const nameInput = document.getElementById('form-ex-name');
-            const setsInput = document.getElementById('form-ex-sets');
-            const repsInput = document.getElementById('form-ex-reps');
-
-            const name = nameInput.value.trim();
-            const sets = parseInt(setsInput.value);
-            const reps = repsInput.value.trim();
-
-            if (!name || isNaN(sets) || sets < 1 || !reps) {
-                alert("Please fill out all entry configurations cleanly.");
-                return;
-            }
-
-            const targetDay = baseRoutine.find(d => d.id === dayId);
-            targetDay.exercises.push({ name: name, sets: sets, reps: reps });
-            
-            saveRoutineState();
-            renderExerciseCards();
-        }
-
-        function saveRoutineState() {
-            localStorage.setItem('alpha_routine', JSON.stringify(baseRoutine));
-        }
-
-        window.resetFactoryRoutine = function() {
-            if (confirm("Reset layout array configuration back to original spreadsheet parameters? (Your completed workout logs remain untouched).")) {
-                baseRoutine = JSON.parse(JSON.stringify(factoryRoutine));
-                saveRoutineState();
-                if (isEditMode) toggleEditMode();
-                renderExerciseCards();
-            }
-        }
-
-        // --- WORKOUT RENDERING ENGINE ---
-        function initWorkoutTab() {
-            const tabsContainer = document.getElementById('routine-tabs');
-            tabsContainer.innerHTML = baseRoutine.map(day => `
-                <button class="tab-btn ${day.id === selectedDayId ? 'active' : ''}" onclick="changeActiveRoutineDay('${day.id}')">
-                    ${day.label}
-                </button>
-            `).join('');
-            renderExerciseCards();
-        }
-
-        function changeActiveRoutineDay(dayId) {
-            selectedDayId = dayId;
-            initWorkoutTab();
-        }
-
-        function getWeekdayTargetDateString(dayId) {
-            const indicesMap = { "Mon": 1, "Tue": 2, "Thu": 4, "Sat": 6 };
-            const targetIndex = indicesMap[dayId];
-            if (targetIndex === undefined) return "";
-
-            const currentObj = new Date();
-            const systemDayIdx = currentObj.getDay(); 
-            const offsetDiff = targetIndex - systemDayIdx;
-
-            const computedTarget = new Date(currentObj);
-            computedTarget.setDate(currentObj.getDate() + offsetDiff);
-
-            const dayNum = computedTarget.getDate();
-            const monthName = computedTarget.toLocaleDateString('en-US', { month: 'long' });
-            
-            return `${dayId}, ${monthName} ${dayNum}${getOrdinalSuffix(dayNum)}`;
-        }
-
-        function renderExerciseCards() {
-            const container = document.getElementById('exercise-cards-container');
-            const formZone = document.getElementById('add-exercise-form-zone');
-            const dataProfile = baseRoutine.find(d => d.id === selectedDayId);
-            
-            document.getElementById('workout-day-title').textContent = dataProfile.title;
-            document.getElementById('workout-date-header').textContent = getWeekdayTargetDateString(selectedDayId);
-
-            if (dataProfile.exercises.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding:40px 0;">No exercises added for this day profile.</p>`;
-            } else {
-                container.innerHTML = dataProfile.exercises.map((ex, idx) => {
-                    const scaleKey = `${todayStamp}-${selectedDayId}-${idx}`;
-                    const currentSetCount = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : ex.sets;
-                    
-                    let setBoxesHtml = '';
-                    for (let s = 1; s <= currentSetCount; s++) {
-                        const logId = `${todayStamp}-${selectedDayId}-${idx}-S${s}`;
-                        const activeChecked = operationalLog[logId] ? 'active-done' : '';
-                        setBoxesHtml += `
-                            <div class="set-box ${activeChecked}" ${isEditMode ? '' : `onclick="toggleSetEngagement('${logId}')"`}>
-                                ${operationalLog[logId] ? '✓' : 'S' + s}
-                            </div>
-                        `;
-                    }
-
-                    const actionInterface = isEditMode ? `
-                        <button class="delete-ex-btn" onclick="removeExerciseElement('${selectedDayId}', ${idx})">Remove</button>
-                    ` : `
-                        <div class="set-modifiers">
-                            <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', -1)">-</button>
-                            <button class="mod-btn" onclick="scaleSetVolume('${scaleKey}', 1)">+</button>
-                        </div>
-                    `;
-
-                    return `
-                        <div class="ex-card">
-                            <div class="ex-header">
-                                <div class="ex-title-block">
-                                    <span class="ex-name">${ex.name}</span>
-                                    <span class="ex-scheme">${currentSetCount} Sets x ${ex.reps} Reps ${currentSetCount !== ex.sets ? `(Base: ${ex.sets}s)` : ''}</span>
-                                </div>
-                                ${actionInterface}
-                            </div>
-                            <div class="sets-grid" style="${isEditMode ? 'opacity:0.25; pointer-events:none;' : ''}">${setBoxesHtml}</div>
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            if (isEditMode) {
-                formZone.innerHTML = `
-                    <div class="add-ex-form">
-                        <div class="form-title">Add New Exercise</div>
-                        <div class="form-group">
-                            <label>Exercise Name</label>
-                            <input type="text" id="form-ex-name" class="form-input" placeholder="e.g., Incline Dumbbell Flyes" autocomplete="off">
-                        </div>
-                        <div class="form-row-split">
-                            <div class="form-group">
-                                <label>Default Sets</label>
-                                <input type="number" id="form-ex-sets" class="form-input" value="3" min="1">
-                            </div>
-                            <div class="form-group">
-                                <label>Target Reps Format</label>
-                                <input type="text" id="form-ex-reps" class="form-input" value="12" placeholder="e.g., 10-12 or 15">
-                            </div>
-                        </div>
-                        <button class="save-ex-btn" onclick="submitNewExercise('${selectedDayId}')">Save To ${selectedDayId}</button>
-                    </div>
-                `;
-            } else {
-                formZone.innerHTML = '';
-            }
-        }
-
-        window.scaleSetVolume = function(scaleKey, change) {
-            const exIdx = scaleKey.split('-').pop();
-            const dayTarget = baseRoutine.find(d => d.id === selectedDayId);
-            if (!dayTarget.exercises[exIdx]) return; 
-            
-            const defaultSets = dayTarget.exercises[exIdx].sets;
-            let current = dynamicScales[scaleKey] !== undefined ? dynamicScales[scaleKey] : defaultSets;
-            current = Math.max(0, current + change);
-            dynamicScales[scaleKey] = current;
-            localStorage.setItem('alpha_scales', JSON.stringify(dynamicScales));
-            renderExerciseCards();
-        }
-
-        window.toggleSetEngagement = function(logId) {
-            if (operationalLog[logId]) {
-                delete operationalLog[logId];
-            } else {
-                operationalLog[logId] = { exerciseName: getExNameFromLogId(logId), timestamp: Date.now() };
-            }
-            localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
-            renderExerciseCards();
-        }
-
-        function getExNameFromLogId(logId) {
-            const parts = logId.split('-');
-            const dayId = parts[3]; 
-            const exIdx = parts[4]; 
-            return baseRoutine.find(d => d.id === dayId).exercises[exIdx].name;
-        }
-
-        // --- CALENDAR TAB FUNCTIONS ---
-        window.adjustMonth = function(direction) {
-            viewDate.setMonth(viewDate.getMonth() + direction);
-            renderCalendarView();
-        }
-
-        function renderCalendarView() {
-            const targetGrid = document.getElementById('calendar-grid-target');
-            const monthYearLabel = document.getElementById('calendar-month-year');
-            
-            const year = viewDate.getFullYear();
-            const month = viewDate.getMonth();
-            
-            monthYearLabel.textContent = viewDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-            
-            const firstDayIndex = new Date(year, month, 1).getDay();
-            const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
-            
-            let gridHtml = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'].map(d => `<div class="weekday-label">${d}</div>`).join('');
-            
-            for (let i = 0; i < firstDayIndex; i++) {
-                gridHtml += `<div class="cal-day empty"></div>`;
-            }
-            
-            for (let day = 1; day <= totalDaysInMonth; day++) {
-                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                let hasLoggedWorkout = Object.keys(operationalLog).some(key => key.startsWith(dateString));
-                const isToday = dateString === todayStamp ? 'is-today-highlight' : '';
-                const workoutClass = hasLoggedWorkout ? 'has-workout' : '';
-                
-                gridHtml += `<div class="cal-day ${isToday} ${workoutClass}">${day}</div>`;
-            }
-            
-            targetGrid.innerHTML = gridHtml;
-        }
-
-        // --- ANALYTICS TAB PROCESSING ---
-        function getOrdinalSuffix(day) {
-            if (day > 3 && day < 21) return 'th';
-            switch (day % 10) {
-                case 1:  return "st";
-                case 2:  return "nd";
-                case 3:  return "rd";
-                default: return "th";
-            }
-        }
-
-        function formatLogDate(dateStr) {
-            const [year, month, day] = dateStr.split('-').map(Number);
-            const dateObj = new Date(year, month - 1, day);
-            
-            const weekday = dateObj.toLocaleDateString('en-US', { weekday: 'long' });
-            const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' });
-            
-            return `${weekday}, ${monthName} ${day}${getOrdinalSuffix(day)}`;
-        }
-
-        window.removeEntireDayLog = function(dateStr) {
-            const formatted = formatLogDate(dateStr);
-            if (confirm(`Are you sure you want to permanently delete ALL workout data logged on ${formatted}? This action cannot be undone.`)) {
-                Object.keys(operationalLog).forEach(key => {
-                    if (key.startsWith(dateStr)) {
-                        delete operationalLog[key];
-                    }
-                });
-                localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
-                renderStatsView();
-            }
-        }
-
-        window.removeSpecificExerciseLog = function(dateStr, exName) {
-            const formatted = formatLogDate(dateStr);
-            if (confirm(`Are you sure you want to delete all historical sets logged for "${exName}" on ${formatted}?`)) {
-                Object.keys(operationalLog).forEach(key => {
-                    if (key.startsWith(dateStr) && operationalLog[key].exerciseName === exName) {
-                        delete operationalLog[key];
-                    }
-                });
-                localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
-                renderStatsView();
-            }
-        }
-
-        function renderStatsView() {
-            const listTarget = document.getElementById('analytics-target-list');
-            let groupedByDate = {};
-
-            Object.keys(operationalLog).forEach(logId => {
-                const entry = operationalLog[logId];
-                if (!entry || !entry.exerciseName) return;
-                
-                const datePart = logId.substring(0, 10); 
-                if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return;
-
-                if (!groupedByDate[datePart]) {
-                    groupedByDate[datePart] = {};
+            if (rTimer) {
+                if (lastRestStart) {
+                    let rTime = Date.now() - lastRestStart;
+                    rTimer.textContent = `Rest Time: ${formatTime(rTime)}`;
+                } else {
+                    rTimer.textContent = `Rest Time: --:--`;
                 }
-                
-                const exName = entry.exerciseName;
-                groupedByDate[datePart][exName] = (groupedByDate[datePart][exName] || 0) + 1;
-            });
-
-            const sortedDates = Object.keys(groupedByDate).sort((a, b) => b.localeCompare(a));
-
-            if (sortedDates.length === 0) {
-                listTarget.innerHTML = `<p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:40px;">No workout volume logged yet.</p>`;
-                return;
             }
+        }
+        setInterval(tick, 1000);
 
-            listTarget.innerHTML = sortedDates.map(dateStr => {
-                const formattedDate = formatLogDate(dateStr);
-                const exercises = groupedByDate[dateStr];
-                
-                const exercisesHtml = Object.entries(exercises).map(([name, sets]) => {
-                    const escapedName = name.replace(/'/g, "\\'");
-                    return `
-                        <div class="stat-row" style="margin-bottom: 6px; background: #19191c; justify-content: space-between;">
-                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                <span style="font-weight:500; font-size:0.9rem; color:var(--text-title);">${name}</span>
-                                <span class="stat-count" style="font-size:0.8rem; color:var(--accent);">${sets} ${sets === 1 ? 'Set' : 'Sets'} Mapped</span>
-                            </div>
-                            <button class="delete-ex-btn" style="padding: 4px 8px; font-size: 0.7rem;" 
-                                    onclick="removeSpecificExerciseLog('${dateStr}', '${escapedName}')">
-                                Remove
-                            </button>
-                        </div>
-                    `;
-                }).join('');
+        function renderTimerDashboard() {
+            const zone = document.getElementById('timer-dashboard-zone');
+            if(isEditMode) { zone.innerHTML = ''; return; }
+            
+            const btnText = sessionState.isRunning ? 'Pause' : (sessionState.elapsed > 0 ? 'Continue' : 'Start');
+            const btnClass = sessionState.isRunning ? 'btn-pause' : 'btn-start';
 
-                return `
-                    <div style="margin-bottom: 24px; border-bottom: 1px solid var(--card-border); padding-bottom: 16px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                            <div class="date-group-title" style="margin: 0;">${formattedDate}</div>
-                            <button class="delete-ex-btn" style="background: transparent; border: 1px solid var(--danger); padding: 4px 8px; font-size: 0.7rem;" 
-                                    onclick="removeEntireDayLog('${dateStr}')">
-                                Delete Day
-                            </button>
-                        </div>
-                        ${exercisesHtml}
+            zone.innerHTML = `
+                <div class="timer-dashboard">
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">Total Workout Time</div>
+                    <div class="main-timer" id="ui-workout-timer">00:00</div>
+                    <div class="timer-controls">
+                        <button class="btn-timer ${btnClass}" onclick="toggleWorkoutTimer()">${btnText}</button>
+                        ${sessionState.elapsed > 0 || sessionState.isRunning ? `<button class="btn-timer btn-stop" onclick="finishWorkout()">Finish</button>` : ''}
                     </div>
-                `;
-            }).join('');
+                    <div class="rest-timer" id="ui-rest-timer">Rest Time: --:--</div>
+                </div>
+            `;
+            tick(); 
         }
 
-        // --- BACKUP UTILITIES ---
-        window.exportData = function() {
-            const dataPkg = { log: operationalLog, scales: dynamicScales, routine: baseRoutine };
-            const encryptedStr = btoa(JSON.stringify(dataPkg));
-            navigator.clipboard.writeText(encryptedStr);
-            alert("Secure backup data code copied directly to your clipboard! Paste and save it safely anywhere.");
+        window.toggleWorkoutTimer = function() {
+            if(sessionState.isRunning) {
+                sessionState.elapsed += Date.now() - sessionState.start;
+                sessionState.isRunning = false;
+            } else {
+                sessionState.start = Date.now();
+                sessionState.isRunning = true;
+            }
+            saveSession();
+            renderTimerDashboard();
         }
 
-        window.importData = function() {
-            const code = prompt("Paste your exported backup code package string below:");
-            if (!code) return;
-            try {
-                const parsed = JSON.parse(atob(code));
-                if (parsed.log && parsed.scales) {
-                    operationalLog = parsed.log;
-                    dynamicScales = parsed.scales;
-                    if (parsed.routine) baseRoutine = parsed.routine;
-                    
-                    localStorage.setItem('alpha_log', JSON.stringify(operationalLog));
-                    localStorage.setItem('alpha_scales', JSON.stringify(dynamicScales));
-                    saveRoutineState();
-                    
-                    alert("Import successful! Complete system state synchronized.");
-                    renderExerciseCards();
-                } else { alert("Invalid backup profile layout structural schema."); }
-            } catch(e) { alert("Data verification processing error."); }
-        }
-
-        const daysTrackerMap = { 1: "Mon", 2: "Tue", 4: "Thu", 6: "Sat" };
-        const systemDayIndex = new Date().getDay();
-        if (daysTrackerMap[systemDayIndex]) {
-            selectedDayId = daysTrackerMap[systemDayIndex];
-        }
-
-        initWorkoutTab();
-    </script>
-</body>
-</html>
+        window.finishWorkout = function() {
+            if(confirm("Finish this workout and log your total duration?")) {
+                if(sessionState.isRunning) {
+                    sessionState.elapsed += Date.now() -
