@@ -259,6 +259,67 @@
             color: var(--accent);
         }
 
+        .delete-ex-btn {
+            background: var(--danger-glow);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .delete-ex-btn:hover { background: var(--danger); color: #000; }
+
+        .add-ex-form {
+            background: #111113;
+            border: 1px dashed var(--card-border);
+            border-radius: 14px;
+            padding: 16px;
+            margin-top: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .form-title {
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+        .form-input {
+            background: #18181b;
+            border: 1px solid var(--card-border);
+            color: var(--text-title);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-row-split { display: flex; gap: 12px; }
+        .form-row-split .form-group { flex: 1; }
+
+        .save-ex-btn {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            margin-top: 4px;
+        }
+
         /* ─── System Actions ─── */
         .system-actions { margin-top: 32px; text-align: center; }
         .util-btn {
@@ -317,6 +378,7 @@
         </div>
 
         <main id="exercise-cards-container"></main>
+        <div id="add-exercise-form-zone"></div>
     </div>
 
     <div id="panel-calendar" class="view-panel">
@@ -411,6 +473,7 @@ let sessionInterval;
 let restInterval;
 let seconds = 0;
 let restSeconds = 0;
+let isEditMode = false;
 
 window.switchMainView = function(viewId, el) {
     document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
@@ -448,14 +511,19 @@ function renderRoutine() {
     const container = document.getElementById('exercise-cards-container');
     container.innerHTML = '';
 
-    dayData.exercises.forEach((ex) => {
+    dayData.exercises.forEach((ex, index) => {
         const card = document.createElement('div');
         card.className = 'ex-card';
         
+        const deleteBtnHtml = isEditMode 
+            ? `<button class="delete-ex-btn" onclick="deleteExercise(${index})">Delete</button>` 
+            : '';
+
         let setsHtml = '';
-        for(let i = 0; i < ex.sets; i++) {
-            // Updated onclick to pass the element to our new toggle function
-            setsHtml += `<div class="set-box" onclick="toggleSet(this)">${ex.reps}</div>`;
+        if (!isEditMode) {
+             for(let i = 0; i < ex.sets; i++) {
+                 setsHtml += `<div class="set-box" onclick="toggleSet(this)">${ex.reps}</div>`;
+             }
         }
 
         card.innerHTML = `
@@ -464,12 +532,90 @@ function renderRoutine() {
                     <span class="ex-name">${ex.name}</span>
                     <span class="ex-scheme">${ex.sets} Sets × ${ex.reps} Reps</span>
                 </div>
+                ${deleteBtnHtml}
             </div>
             <div class="sets-grid">${setsHtml}</div>
         `;
         container.appendChild(card);
     });
+    
+    renderAddForm();
 }
+
+// ══════════════════════════════════════════════════════════════
+// EDIT MODE LOGIC
+// ══════════════════════════════════════════════════════════════
+window.toggleEditMode = function() {
+    isEditMode = !isEditMode;
+    const btn = document.getElementById('edit-mode-toggle');
+    
+    if (isEditMode) {
+        btn.innerText = "Done Editing";
+        btn.classList.add('mode-on');
+    } else {
+        btn.innerText = "Edit Split";
+        btn.classList.remove('mode-on');
+    }
+    
+    renderRoutine();
+};
+
+window.deleteExercise = function(index) {
+    if(!confirm("Remove this exercise from the day?")) return;
+    const dayData = factoryRoutine.find(d => d.id === currentDayId);
+    dayData.exercises.splice(index, 1);
+    renderRoutine();
+};
+
+function renderAddForm() {
+    const formZone = document.getElementById('add-exercise-form-zone');
+    
+    if (!isEditMode) {
+        formZone.innerHTML = '';
+        return;
+    }
+    
+    formZone.innerHTML = `
+        <div class="add-ex-form">
+            <span class="form-title">Add Exercise to ${currentDayId}</span>
+            <div class="form-group">
+                <label>Exercise Name</label>
+                <input type="text" id="new-ex-name" class="form-input" placeholder="e.g. Hammer Curls">
+            </div>
+            <div class="form-row-split">
+                <div class="form-group">
+                    <label>Sets</label>
+                    <input type="number" id="new-ex-sets" class="form-input" placeholder="3" min="1" max="10">
+                </div>
+                <div class="form-group">
+                    <label>Reps</label>
+                    <input type="text" id="new-ex-reps" class="form-input" placeholder="10">
+                </div>
+            </div>
+            <button class="save-ex-btn" onclick="saveNewExercise()">Add Exercise</button>
+        </div>
+    `;
+}
+
+window.saveNewExercise = function() {
+    const nameInput = document.getElementById('new-ex-name').value.trim();
+    const setsInput = parseInt(document.getElementById('new-ex-sets').value);
+    const repsInput = document.getElementById('new-ex-reps').value.trim();
+    
+    if (!nameInput || isNaN(setsInput) || !repsInput) {
+        alert("Please fill out all fields.");
+        return;
+    }
+    
+    const dayData = factoryRoutine.find(d => d.id === currentDayId);
+    dayData.exercises.push({
+        name: nameInput,
+        sets: setsInput,
+        reps: repsInput
+    });
+    
+    renderRoutine();
+};
 
 // ══════════════════════════════════════════════════════════════
 // TIMER SYSTEM
@@ -509,7 +655,6 @@ window.finishSession = function() {
 };
 
 window.startRestTimer = function() {
-    // Clear any existing rest timer to start fresh
     clearInterval(restInterval);
     restSeconds = 0;
     
@@ -527,14 +672,11 @@ window.startRestTimer = function() {
 
 window.toggleSet = function(el) {
     el.classList.toggle('active-done');
-    
-    // Only trigger the rest timer if the set was just marked as DONE (not untoggled)
     if (el.classList.contains('active-done')) {
         startRestTimer();
     }
 };
 
-window.toggleEditMode = function() { alert("Edit mode coming soon!"); };
 window.exportData = function() { alert("Exporting data backup..."); };
 window.importData = function() { alert("Importing data backup..."); };
 
