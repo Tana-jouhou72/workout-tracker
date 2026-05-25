@@ -219,19 +219,6 @@
         .ex-name { font-size: 0.95rem; font-weight: 600; color: var(--text-title); }
         .ex-scheme { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
 
-        .set-modifiers { display: flex; gap: 6px; }
-        .mod-btn {
-            background: #27272a;
-            border: none;
-            color: var(--text-body);
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-
         .sets-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .set-box {
             width: 42px;
@@ -272,7 +259,7 @@
             color: var(--accent);
         }
 
-        /* ─── Calendar & Stats (Simplified for demo) ─── */
+        /* ─── System Actions ─── */
         .system-actions { margin-top: 32px; text-align: center; }
         .util-btn {
             background: transparent;
@@ -302,7 +289,7 @@
                 <h1 id="workout-day-title">Loading...</h1>
                 <div id="workout-date-header" class="live-date-header"></div>
                 <p class="subtitle" id="workout-subtitle" style="margin-top:6px;">
-                    Tap sets to log.
+                    Tap sets to log and start rest timer.
                 </p>
             </div>
             <button id="edit-mode-toggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit Split</button>
@@ -315,6 +302,11 @@
                 <div class="timer-block">
                     <span class="timer-label">Session</span>
                     <span id="session-time-display" class="timer-value">00:00</span>
+                </div>
+                <div class="timer-sep"></div>
+                <div class="timer-block">
+                    <span class="timer-label">Rest</span>
+                    <span id="rest-time-display" class="timer-value">00:00</span>
                 </div>
             </div>
             <div class="timer-controls">
@@ -416,7 +408,9 @@ const factoryRoutine = [
 // ══════════════════════════════════════════════════════════════
 let currentDayId = "Mon";
 let sessionInterval;
+let restInterval;
 let seconds = 0;
+let restSeconds = 0;
 
 window.switchMainView = function(viewId, el) {
     document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
@@ -460,7 +454,8 @@ function renderRoutine() {
         
         let setsHtml = '';
         for(let i = 0; i < ex.sets; i++) {
-            setsHtml += `<div class="set-box" onclick="this.classList.toggle('active-done')">${ex.reps}</div>`;
+            // Updated onclick to pass the element to our new toggle function
+            setsHtml += `<div class="set-box" onclick="toggleSet(this)">${ex.reps}</div>`;
         }
 
         card.innerHTML = `
@@ -501,10 +496,42 @@ window.pauseSessionTimer = function() {
 
 window.finishSession = function() {
     pauseSessionTimer();
+    clearInterval(restInterval);
     seconds = 0;
+    restSeconds = 0;
+    
     document.getElementById('session-time-display').innerText = "00:00";
+    document.getElementById('rest-time-display').innerText = "00:00";
+    document.getElementById('rest-time-display').classList.remove('rest-active');
+    
     document.querySelectorAll('.set-box.active-done').forEach(el => el.classList.remove('active-done'));
     alert("Workout metrics secured. Great session.");
+};
+
+window.startRestTimer = function() {
+    // Clear any existing rest timer to start fresh
+    clearInterval(restInterval);
+    restSeconds = 0;
+    
+    const display = document.getElementById('rest-time-display');
+    display.innerText = "00:00";
+    display.classList.add('rest-active');
+    
+    restInterval = setInterval(() => {
+        restSeconds++;
+        const m = Math.floor(restSeconds / 60).toString().padStart(2, '0');
+        const s = (restSeconds % 60).toString().padStart(2, '0');
+        display.innerText = `${m}:${s}`;
+    }, 1000);
+};
+
+window.toggleSet = function(el) {
+    el.classList.toggle('active-done');
+    
+    // Only trigger the rest timer if the set was just marked as DONE (not untoggled)
+    if (el.classList.contains('active-done')) {
+        startRestTimer();
+    }
 };
 
 window.toggleEditMode = function() { alert("Edit mode coming soon!"); };
