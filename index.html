@@ -272,150 +272,7 @@
             color: var(--accent);
         }
 
-        .delete-ex-btn {
-            background: var(--danger-glow);
-            border: 1px solid var(--danger);
-            color: var(--danger);
-            padding: 6px 12px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .delete-ex-btn:hover { background: var(--danger); color: #000; }
-
-        .add-ex-form {
-            background: #111113;
-            border: 1px dashed var(--card-border);
-            border-radius: 14px;
-            padding: 16px;
-            margin-top: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .form-title {
-            font-size: 0.85rem;
-            font-weight: bold;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .form-group { display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-
-        .form-input {
-            background: #18181b;
-            border: 1px solid var(--card-border);
-            color: var(--text-title);
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .form-row-split { display: flex; gap: 12px; }
-        .form-row-split .form-group { flex: 1; }
-
-        .save-ex-btn {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.02em;
-            margin-top: 4px;
-        }
-
-        /* ─── Calendar ─── */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 12px;
-            border-radius: 14px;
-        }
-
-        .weekday-label {
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            padding-bottom: 6px;
-        }
-
-        .cal-day {
-            aspect-ratio: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 8px;
-            background: #18181b;
-            color: var(--text-muted);
-            border: 1px solid transparent;
-        }
-        .cal-day.empty { background: transparent; border: none; }
-        .cal-day.has-workout {
-            background: var(--success-glow);
-            color: var(--success);
-            border-color: rgba(16, 185, 129, 0.3);
-            font-weight: 700;
-        }
-        .cal-day.is-today-highlight { border: 1px solid var(--accent); color: var(--text-title); }
-
-        /* ─── Analytics ─── */
-        .date-group-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .stat-row {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 12px 16px;
-            border-radius: 10px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .duration-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            background: rgba(6, 182, 212, 0.08);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            color: var(--accent);
-            padding: 3px 9px;
-            border-radius: 20px;
-            font-size: 0.7rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            margin-top: 4px;
-        }
-
-        /* ─── Utilities ─── */
+        /* ─── Calendar & Stats (Simplified for demo) ─── */
         .system-actions { margin-top: 32px; text-align: center; }
         .util-btn {
             background: transparent;
@@ -439,16 +296,13 @@
 
 <div class="app-wrapper">
 
-    <!-- ════════════════════════════════════
-         PANEL 1: WORKOUT ENGINE
-    ════════════════════════════════════ -->
     <div id="panel-workout" class="view-panel active-panel">
         <header class="header-row">
             <div>
                 <h1 id="workout-day-title">Loading...</h1>
                 <div id="workout-date-header" class="live-date-header"></div>
                 <p class="subtitle" id="workout-subtitle" style="margin-top:6px;">
-                    Tap sets to log. Use +/- to adjust volume.
+                    Tap sets to log.
                 </p>
             </div>
             <button id="edit-mode-toggle" class="edit-toggle-btn" onclick="toggleEditMode()">Edit Split</button>
@@ -456,17 +310,11 @@
 
         <nav class="day-tabs" id="routine-tabs"></nav>
 
-        <!-- Dual Timer Module -->
         <div class="timer-module">
             <div class="timer-display">
                 <div class="timer-block">
                     <span class="timer-label">Session</span>
                     <span id="session-time-display" class="timer-value">00:00</span>
-                </div>
-                <div class="timer-sep"></div>
-                <div class="timer-block">
-                    <span class="timer-label">Rest</span>
-                    <span id="rest-time-display" class="timer-value">00:00</span>
                 </div>
             </div>
             <div class="timer-controls">
@@ -477,61 +325,42 @@
         </div>
 
         <main id="exercise-cards-container"></main>
-        <div id="add-exercise-form-zone"></div>
     </div>
 
-    <!-- ════════════════════════════════════
-         PANEL 2: CALENDAR MATRIX
-    ════════════════════════════════════ -->
     <div id="panel-calendar" class="view-panel">
         <header>
             <h1>Activity Matrix</h1>
-            <p class="subtitle">Highlighted dates denote logged exercise history.</p>
+            <p class="subtitle">Calendar UI pending next update.</p>
         </header>
-        <div class="calendar-header">
-            <button class="mod-btn" onclick="adjustMonth(-1)">&lt;</button>
-            <span id="calendar-month-year" style="font-weight:700;"></span>
-            <button class="mod-btn" onclick="adjustMonth(1)">&gt;</button>
-        </div>
-        <div class="cal-grid" id="calendar-grid-target"></div>
     </div>
 
-    <!-- ════════════════════════════════════
-         PANEL 3: ANALYTICS & UTILITIES
-    ════════════════════════════════════ -->
     <div id="panel-stats" class="view-panel">
         <header>
-            <h1>Exercise Volume Metrics</h1>
-            <p class="subtitle">Historical registry organized chronologically by day.</p>
+            <h1>System Settings</h1>
         </header>
-        <div id="analytics-target-list"></div>
         <div class="system-actions">
             <button id="pwa-install-btn" class="util-btn install-highlight" onclick="triggerPwaInstallation()">Install App to Device</button>
             <button class="util-btn" onclick="exportData()">Export Data Backup</button>
             <button class="util-btn" onclick="importData()">Import Data Backup</button>
-            <button class="util-btn" style="color:var(--danger);" onclick="resetFactoryRoutine()">Reset Routine Defaults</button>
         </div>
     </div>
 
     <nav class="bottom-nav">
         <button class="nav-link active-view" onclick="switchMainView('workout', this)">Workout</button>
         <button class="nav-link" onclick="switchMainView('calendar', this)">Calendar</button>
-        <button class="nav-link" onclick="switchMainView('stats', this)">Analytics</button>
+        <button class="nav-link" onclick="switchMainView('stats', this)">Settings</button>
     </nav>
 
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
-// SERVICE WORKER
+// SERVICE WORKER & PWA
 // ══════════════════════════════════════════════════════════════
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+    window.addEventListener('load', () => { /* navigator.serviceWorker.register('sw.js'); */ });
 }
 
-// ══════════════════════════════════════════════════════════════
-// PWA INSTALL INTERCEPT
-// ══════════════════════════════════════════════════════════════
 let stashedPwaEvent = null;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
@@ -544,50 +373,146 @@ window.triggerPwaInstallation = async function () {
         stashedPwaEvent.prompt();
         await stashedPwaEvent.userChoice;
     } else {
-        alert(
-            "Direct installation isn't available right now.\n\n" +
-            "Possible reasons:\n" +
-            "1. The app is already installed.\n" +
-            "2. You're in an in-app browser — open in Chrome.\n" +
-            "3. Use the three-dot menu → 'Add to Home screen'."
-        );
+        alert("Direct installation isn't available right now. Use your browser's menu to add to home screen.");
     }
 };
 
 // ══════════════════════════════════════════════════════════════
-// ✅ FIX #1 — CRASH-PROOF LOCALSTORAGE PARSER
-//
-// JSON.parse() on a corrupted string throws a SyntaxError that
-// halts the entire <script> block, leaving the page frozen on
-// "Loading...". This helper catches that and returns the fallback.
+// FACTORY DEFAULT SPLIT (4-Day V-Shape Routine)
 // ══════════════════════════════════════════════════════════════
-function safeParse(key, fallback) {
-    try {
-        const raw = localStorage.getItem(key);
-        if (raw === null || raw === '') return fallback;
-        const parsed = JSON.parse(raw);
-        if (parsed === null || parsed === undefined) return fallback;
-        // Type guard: ensure we got the expected container type
-        if (Array.isArray(fallback) && !Array.isArray(parsed))    return fallback;
-        if (!Array.isArray(fallback) && typeof fallback === 'object'
-            && (typeof parsed !== 'object' || Array.isArray(parsed))) return fallback;
-        return parsed;
-    } catch (e) {
-        console.warn(`[safeParse] Corrupted key "${key}" — using fallback. Error:`, e.message);
-        return fallback;
-    }
+const factoryRoutine = [
+    { id: "Mon", label: "MON", title: "Day 1 // Chest & Width Focus", exercises: [
+        { name: "Incline Bench Press",       sets: 3, reps: "12" },
+        { name: "Bench Press",               sets: 3, reps: "12" },
+        { name: "Dumbbell Overhead Press",   sets: 3, reps: "12" },
+        { name: "Lateral Raise",             sets: 4, reps: "15" },
+        { name: "Tricep Rope Pushdown",      sets: 3, reps: "12" }
+    ]},
+    { id: "Tue", label: "TUE", title: "Day 2 // Lat Width & Abs", exercises: [
+        { name: "Lat Pulldown",              sets: 4, reps: "12" },
+        { name: "Seated Cable Row",          sets: 3, reps: "12" },
+        { name: "Straight Arm Pulldown",     sets: 3, reps: "15" },
+        { name: "Hanging Leg Raise",         sets: 4, reps: "15" },
+        { name: "Cable Crunch",              sets: 3, reps: "20" }
+    ]},
+    { id: "Thu", label: "THU", title: "Day 3 // Delts & Upper Chest", exercises: [
+        { name: "Dumbbell Shoulder Press",   sets: 4, reps: "10" },
+        { name: "Incline Dumbbell Press",    sets: 3, reps: "12" },
+        { name: "Cable Lateral Raise",       sets: 4, reps: "15" },
+        { name: "Face Pulls",                sets: 3, reps: "15" },
+        { name: "Overhead Tricep Extension", sets: 3, reps: "12" }
+    ]},
+    { id: "Fri", label: "FRI", title: "Day 4 // Back Thickness & Lower", exercises: [
+        { name: "Barbell Row",               sets: 4, reps: "10" },
+        { name: "Pull-ups",                  sets: 3, reps: "Failure" },
+        { name: "Bulgarian Split Squat",     sets: 3, reps: "10" },
+        { name: "Leg Curls",                 sets: 3, reps: "15" },
+        { name: "Bicep Curls",               sets: 4, reps: "12" }
+    ]}
+];
+
+// ══════════════════════════════════════════════════════════════
+// CORE APP LOGIC
+// ══════════════════════════════════════════════════════════════
+let currentDayId = "Mon";
+let sessionInterval;
+let seconds = 0;
+
+window.switchMainView = function(viewId, el) {
+    document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active-panel'));
+    document.getElementById('panel-' + viewId).classList.add('active-panel');
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active-view'));
+    el.classList.add('active-view');
+};
+
+function renderTabs() {
+    const container = document.getElementById('routine-tabs');
+    container.innerHTML = '';
+    factoryRoutine.forEach(day => {
+        const btn = document.createElement('button');
+        btn.className = `tab-btn ${day.id === currentDayId ? 'active' : ''}`;
+        btn.innerText = day.label;
+        btn.onclick = () => {
+            currentDayId = day.id;
+            renderRoutine();
+        };
+        container.appendChild(btn);
+    });
+}
+
+function renderRoutine() {
+    renderTabs();
+    const dayData = factoryRoutine.find(d => d.id === currentDayId);
+    
+    document.getElementById('workout-day-title').innerText = dayData.title;
+    
+    const today = new Date();
+    document.getElementById('workout-date-header').innerText = today.toLocaleDateString('en-US', { 
+        weekday: 'long', month: 'short', day: 'numeric' 
+    });
+
+    const container = document.getElementById('exercise-cards-container');
+    container.innerHTML = '';
+
+    dayData.exercises.forEach((ex) => {
+        const card = document.createElement('div');
+        card.className = 'ex-card';
+        
+        let setsHtml = '';
+        for(let i = 0; i < ex.sets; i++) {
+            setsHtml += `<div class="set-box" onclick="this.classList.toggle('active-done')">${ex.reps}</div>`;
+        }
+
+        card.innerHTML = `
+            <div class="ex-header">
+                <div class="ex-title-block">
+                    <span class="ex-name">${ex.name}</span>
+                    <span class="ex-scheme">${ex.sets} Sets × ${ex.reps} Reps</span>
+                </div>
+            </div>
+            <div class="sets-grid">${setsHtml}</div>
+        `;
+        container.appendChild(card);
+    });
 }
 
 // ══════════════════════════════════════════════════════════════
-// FACTORY DEFAULT SPLIT
+// TIMER SYSTEM
 // ══════════════════════════════════════════════════════════════
-const factoryRoutine = [
-    { id: "Mon", label: "MON", title: "Monday // Chest & Width Focus", exercises: [
-        { name: "Incline Bench Press",       sets: 3, reps: "12"    },
-        { name: "Bench Press",               sets: 3, reps: "12"    },
-        { name: "Dumbbell Overhead Press",   sets: 3, reps: "12"    },
-        { name: "Lateral Raise",             sets: 4, reps: "15"    },
-        { name: "Tricep Rope Pushdown",      sets: 3, reps: "12"    }
-    ]},
-    { id: "Tue", label: "TUE", title: "Tuesday // Lat Width & Abs", exercises: [
-        { name: "Lat Pulldown",              sets: 4, reps: "12" 
+window.startSessionTimer = function() {
+    document.getElementById('timer-start-btn').disabled = true;
+    document.getElementById('timer-pause-btn').disabled = false;
+    
+    sessionInterval = setInterval(() => {
+        seconds++;
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        document.getElementById('session-time-display').innerText = `${m}:${s}`;
+        document.getElementById('session-time-display').classList.add('running');
+    }, 1000);
+};
+
+window.pauseSessionTimer = function() {
+    clearInterval(sessionInterval);
+    document.getElementById('timer-start-btn').disabled = false;
+    document.getElementById('timer-pause-btn').disabled = true;
+    document.getElementById('session-time-display').classList.remove('running');
+};
+
+window.finishSession = function() {
+    pauseSessionTimer();
+    seconds = 0;
+    document.getElementById('session-time-display').innerText = "00:00";
+    document.querySelectorAll('.set-box.active-done').forEach(el => el.classList.remove('active-done'));
+    alert("Workout metrics secured. Great session.");
+};
+
+window.toggleEditMode = function() { alert("Edit mode coming soon!"); };
+window.exportData = function() { alert("Exporting data backup..."); };
+window.importData = function() { alert("Importing data backup..."); };
+
+// Boot App
+window.onload = renderRoutine;
+</script>
+</body>
+</html>
